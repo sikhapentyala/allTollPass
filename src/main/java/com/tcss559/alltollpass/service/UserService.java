@@ -10,7 +10,9 @@ import com.tcss559.alltollpass.exception.UserNotFoundException;
 import com.tcss559.alltollpass.model.request.user.RfidRequest;
 import com.tcss559.alltollpass.model.request.user.TransactionRequest;
 import com.tcss559.alltollpass.model.request.user.UserRequest;
+import com.tcss559.alltollpass.model.response.user.TransactionDetail;
 import com.tcss559.alltollpass.model.response.user.UserResponse;
+import com.tcss559.alltollpass.model.response.user.UserTransactionResponse;
 import com.tcss559.alltollpass.repository.UserRepository;
 import com.tcss559.alltollpass.repository.UserRfidRepository;
 import com.tcss559.alltollpass.repository.UserTransactionsRepository;
@@ -21,6 +23,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
@@ -34,12 +37,13 @@ public class UserService {
     @Autowired
     UserTransactionsRepository userTransactionsRepository;
 
+
     public User getUserByName(String name) throws UserNotFoundException {
         Optional<User> user = userRepository.findByName(name);
         if(user.isPresent()){
             return user.get();
         }else{
-           throw new UserNotFoundException("");
+           throw new UserNotFoundException("No User found");
         }
     }
 
@@ -48,7 +52,7 @@ public class UserService {
         if(user.isPresent()){
             return user.get();
         }else{
-            throw new UserNotFoundException("");
+            throw new UserNotFoundException("No User found");
         }
     }
 
@@ -57,7 +61,7 @@ public class UserService {
         if(user.isPresent()){
             return user.get();
         }else{
-            throw new UserNotFoundException("");
+            throw new UserNotFoundException("No User found");
         }
     }
 
@@ -137,7 +141,34 @@ public class UserService {
         return userRepository.findById(userId).orElseThrow().getBalance();
     }
 
-    public void getReports(Long userId) {
-//        userTransactionsRepository.
+    public UserTransactionResponse getReports(Long userId) {
+        try {
+            List<UserTransactions> transactions = userTransactionsRepository.findByUserId(userId);
+            return UserTransactionResponse.builder()
+                    .userId(userId)
+                    .transactions(transactions.stream()
+                            .map(it ->
+                                    TransactionDetail.builder()
+                                            .rfid(it.getRfid())
+                                            .type(it.getType())
+                                            .amount(it.getAmount())
+                                            .createdAt(it.getTimestamp())
+                                            .build()
+                            )
+                            .collect(Collectors.toList())
+                    )
+                    .build();
+        }catch (Exception e){
+            throw new DatabaseException(e);
+        }
+    }
+
+    public long deleteRfid(String rfid) throws DatabaseException {
+        try{
+            return userRfidRepository.deleteByRfid(rfid);
+
+        }catch (Exception e){
+            throw new DatabaseException(e);
+        }
     }
 }

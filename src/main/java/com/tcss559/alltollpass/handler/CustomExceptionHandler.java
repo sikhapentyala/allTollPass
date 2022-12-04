@@ -17,14 +17,14 @@ public class CustomExceptionHandler {
             = { DatabaseException.class })
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     protected Error handleDatabase(
-            Throwable ex, WebRequest request) {
+            RuntimeException ex, WebRequest request) {
         return Error.builder().message(ex.getLocalizedMessage()).build();
     }
 
     @ExceptionHandler(value
             = { UserNotFoundException.class })
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    protected Error handleUserNotFound(Throwable ex, WebRequest request) {
+    protected Error handleUserNotFound(RuntimeException ex, WebRequest request) {
         return Error.builder().message(ex.getLocalizedMessage()).build();
     }
 
@@ -32,7 +32,7 @@ public class CustomExceptionHandler {
             = { RfidNotFoundException.class })
     @ResponseStatus(HttpStatus.NOT_FOUND)
     protected Error handleRfidNotFound(
-            Throwable ex, WebRequest request) {
+            RuntimeException ex, WebRequest request) {
         return Error.builder().message(ex.getLocalizedMessage()).build();
     }
 }

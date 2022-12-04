@@ -10,6 +10,8 @@ import com.tcss559.alltollpass.model.request.user.RfidRequest;
 import com.tcss559.alltollpass.model.request.user.TransactionRequest;
 import com.tcss559.alltollpass.model.request.user.UserRequest;
 import com.tcss559.alltollpass.model.response.user.UserResponse;
+import com.tcss559.alltollpass.model.response.user.UserTransactionResponse;
+import com.tcss559.alltollpass.service.AuthenticationService;
 import com.tcss559.alltollpass.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -86,9 +88,8 @@ public class UserController {
     }
 
     @GetMapping("/reports")
-    public void getReports(@RequestHeader("user_id") Long userId) throws DatabaseException, RfidNotFoundException {
-        //TODO: Get Reports on transactions
-        userService.getReports(userId);
+    public UserTransactionResponse getReports(@RequestHeader("user_id") Long userId) throws DatabaseException, RfidNotFoundException {
+        return userService.getReports(userId);
     }
 
     @PostMapping("/reports")
@@ -97,7 +98,12 @@ public class UserController {
     }
 
     @DeleteMapping("/rfid")
-    public void deleteRfid(@RequestHeader("rfid") String rfid) throws DatabaseException, RfidNotFoundException {
-        //TODO: Delet Rfid
+    public long deleteRfid(@RequestHeader("rfid") String rfid) throws DatabaseException, RfidNotFoundException {
+        long deletedRecords = userService.deleteRfid(rfid);
+        if(deletedRecords != 1){
+            return deletedRecords;
+        }else{
+            throw new DatabaseException("Record not deleted");
+        }
     }
 }

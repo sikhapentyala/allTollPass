@@ -11,4 +11,6 @@ import java.util.Optional;
 public interface UserRfidRepository extends JpaRepository<UserRfid, Long> {
     Optional<UserRfid> findByRfid(String rfid);
     List<UserRfid> findByUserId(Long userId);
+
+    long deleteByRfid(String rfid);
 }
