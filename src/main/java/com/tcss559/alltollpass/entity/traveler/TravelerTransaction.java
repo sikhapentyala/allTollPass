@@ -24,9 +24,8 @@ public class TravelerTransaction {
     private Long userId;
 
     private String rfid;
-
     private double amount;
-
+    private String tollLocation;
     private TransactionType type;
 
     @Builder.Default

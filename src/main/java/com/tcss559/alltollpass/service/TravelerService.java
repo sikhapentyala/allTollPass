@@ -14,6 +14,7 @@ import com.tcss559.alltollpass.model.request.traveler.TravelerBalance;
 import com.tcss559.alltollpass.model.request.traveler.TravelerRequest;
 import com.tcss559.alltollpass.model.response.traveler.TransactionDetail;
 import com.tcss559.alltollpass.model.response.traveler.TravelerResponse;
+import com.tcss559.alltollpass.model.response.traveler.TravelerRfidResponse;
 import com.tcss559.alltollpass.model.response.traveler.TravelerTransactionResponse;
 import com.tcss559.alltollpass.repository.UserRepository;
 import com.tcss559.alltollpass.repository.traveler.TravelerAccountRepository;
@@ -22,10 +23,8 @@ import com.tcss559.alltollpass.repository.traveler.TravelerTransactionRepository
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -83,7 +82,7 @@ public class TravelerService {
     //RFID Methods
     public TravelerResponse addRfid(RfidRequest rfidRequest) throws DatabaseException, UserNotFoundException {
 
-        User user =userRepository.findById(rfidRequest.getUserId()).orElseThrow(() -> new UserNotFoundException(""));
+        User user = userRepository.findById(rfidRequest.getUserId()).orElseThrow(() -> new UserNotFoundException(""));
 
         TravelerRfid rfid = TravelerRfid.builder()
                 .userId(rfidRequest.getUserId())
@@ -95,9 +94,18 @@ public class TravelerService {
         try{
             TravelerRfid savedRfid = travelerRfidRepository.save(rfid);
             List<TravelerRfid> list = travelerRfidRepository.findByUserId(user.getId());
+
             return TravelerResponse.builder()
                     .userId(user.getId())
-                    .rfids(list)
+                    .rfids(list.stream()
+                            .map(it -> TravelerRfidResponse.builder()
+                                    .rfid(it.getRfid())
+                                    .createdTimestamp(it.getCreatedTimestamp())
+                                    .vehicleType(it.getVehicleType())
+                                    .build()
+                            )
+                            .collect(Collectors.toList())
+                    )
                     .build();
 
         }catch (Exception e){
@@ -105,94 +113,36 @@ public class TravelerService {
         }
     }
 
-    public List<TravelerRfid> getAllRfid(Long userId) {
-        return travelerRfidRepository.findByUserId(userId);
-    }
-
-    public long deleteRfid(String rfid) throws DatabaseException {
-        try{
-            return travelerRfidRepository.deleteByRfid(rfid);
-
-        }catch (Exception e){
-            throw new DatabaseException(e);
-        }
-    }
-
-    // Transactions
-
-
-
-
-    public TravelerBalance createTransaction(TransactionRequest ) throws DatabaseException, RfidNotFoundException {
-        TravelerRfid rfid = travelerRfidRepository.findByRfid(transactionRequest.getRfid()).orElseThrow(() -> new RfidNotFoundException(""));
-        TravelerAccount user = userRepository.findById(rfid.getUserId()).orElseThrow(() -> new DatabaseException(""));
-        TravelerTransaction transaction = TravelerTransaction.builder()
-                .userId(rfid.getUserId())
-                .amount(transactionRequest.getAmount())
-                .type(transactionRequest.getType())
-                .rfid(rfid.getRfid())
+    public TravelerResponse getAllRfid(Long userId) {
+        List<TravelerRfid> list = travelerRfidRepository.findByUserIdAndIsActiveTrue(userId);
+        return TravelerResponse.builder()
+                .rfids(
+                    list.stream()
+                    .map(it -> TravelerRfidResponse.builder()
+                            .rfid(it.getRfid())
+                            .createdTimestamp(it.getCreatedTimestamp())
+                            .vehicleType(it.getVehicleType())
+                            .build()
+                    )
+                    .collect(Collectors.toList())
+                )
+                .userId(userId)
                 .build();
+    }
+
+    public TravelerResponse deleteRfid(String rfid) throws DatabaseException {
         try{
+            TravelerRfid existingRfid = travelerRfidRepository.findByRfid(rfid).orElseThrow(() -> new UserNotFoundException("RFID not found"));
+            existingRfid.setActive(false);
+            travelerRfidRepository.save(existingRfid);
+            return getAllRfid(existingRfid.getUserId());
 
-            TravelerTransaction savedTransactions = travelerTransactionRepository.save(transaction);
-            if(savedTransactions.getType() == TransactionType.DEBIT){
-                user.setBalance(user.getBalance() - savedTransactions.getAmount());
-            }else{
-                user.setBalance(user.getBalance() + savedTransactions.getAmount());
-            }
-
-            userRepository.save(user);
-
-            return savedTransactions;
         }catch (Exception e){
             throw new DatabaseException(e);
         }
     }
 
-
-
-
-    public TravelerAccount getUserByName(String name) throws UserNotFoundException {
-        Optional<TravelerAccount> user = userRepository.findByName(name);
-        if(user.isPresent()){
-            return user.get();
-        }else{
-           throw new UserNotFoundException("No TravelerAccount found");
-        }
-    }
-
-    public TravelerAccount getUserByEmail(String email) throws UserNotFoundException{
-        Optional<TravelerAccount> user = userRepository.findByEmail(email);
-        if(user.isPresent()){
-            return user.get();
-        }else{
-            throw new UserNotFoundException("No TravelerAccount found");
-        }
-    }
-
-    public TravelerAccount getUserById(Long id) throws UserNotFoundException{
-        Optional<TravelerAccount> user = userRepository.findById(id);
-        if(user.isPresent()){
-            return user.get();
-        }else{
-            throw new UserNotFoundException("No TravelerAccount found");
-        }
-    }
-
-    public TravelerAccount createUser(TravelerRequest userRequest) throws DatabaseException {
-        TravelerAccount user = TravelerAccount.builder()
-                .name(userRequest.getName())
-                .email(userRequest.getEmail())
-                .build();
-        try{
-            return userRepository.save(user);
-        }catch (Exception e){
-            throw new DatabaseException(e);
-        }
-
-    }
-
-
+    // Reporrts
 
     public TravelerTransactionResponse getReports(Long userId) {
         try {
@@ -205,7 +155,8 @@ public class TravelerService {
                                             .rfid(it.getRfid())
                                             .type(it.getType())
                                             .amount(it.getAmount())
-                                            .createdAt(it.getTimestamp())
+                                            .createdTimestamp(it.getTimestamp())
+                                            .tollLocation(it.getTollLocation())
                                             .build()
                             )
                             .collect(Collectors.toList())
@@ -215,6 +166,42 @@ public class TravelerService {
             throw new DatabaseException(e);
         }
     }
+
+    public void sendReport(Long userId) {
+        try {
+            TravelerTransactionResponse travelerTransactionResponse = getReports(userId);
+            //TODO: create CSV and send email
+        }catch (Exception e){
+            throw new DatabaseException(e);
+        }
+    }
+
+    // Transactions
+//    public TravelerBalance createTransaction(TransactionRequest transactionRequest) throws DatabaseException, RfidNotFoundException {
+//        TravelerRfid rfid = travelerRfidRepository.findByRfid(transactionRequest.getRfid()).orElseThrow(() -> new RfidNotFoundException(""));
+//        TravelerAccount user = userRepository.findById(rfid.getUserId()).orElseThrow(() -> new DatabaseException(""));
+//        TravelerTransaction transaction = TravelerTransaction.builder()
+//                .userId(rfid.getUserId())
+//                .amount(transactionRequest.getAmount())
+//                .type(transactionRequest.getType())
+//                .rfid(rfid.getRfid())
+//                .build();
+//        try{
+//
+//            TravelerTransaction savedTransactions = travelerTransactionRepository.save(transaction);
+//            if(savedTransactions.getType() == TransactionType.DEBIT){
+//                user.setBalance(user.getBalance() - savedTransactions.getAmount());
+//            }else{
+//                user.setBalance(user.getBalance() + savedTransactions.getAmount());
+//            }
+//
+//            userRepository.save(user);
+//
+//            return savedTransactions;
+//        }catch (Exception e){
+//            throw new DatabaseException(e);
+//        }
+//    }
 
 
 }

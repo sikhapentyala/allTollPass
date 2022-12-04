@@ -10,9 +10,7 @@ import java.util.List;
 @Builder
 public class TravelerResponse {
     private Long userId;
-    private String name;
-    private String email;
     private double balance;
-    private List<TravelerRfid> rfids;
+    private List<TravelerRfidResponse> rfids;
 
 }

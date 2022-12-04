@@ -16,15 +16,17 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    private String user;
+
+    @Column(unique = true)
+    private String username;
     private String password;
 
     private Role role;
     private String name;
-    @Column(unique = true)
     private String email;
 
-    private String isActive;
+    @Builder.Default
+    private boolean isActive = true;
 
     @Builder.Default
     private LocalDateTime createdTimestamp = LocalDateTime.now();
