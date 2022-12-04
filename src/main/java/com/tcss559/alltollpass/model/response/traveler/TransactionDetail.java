@@ -1,6 +1,6 @@
-package com.tcss559.alltollpass.model.response.user;
+package com.tcss559.alltollpass.model.response.traveler;
 
-import com.tcss559.alltollpass.entity.user.TransactionType;
+import com.tcss559.alltollpass.entity.traveler.TransactionType;
 import lombok.Builder;
 import lombok.Data;
 

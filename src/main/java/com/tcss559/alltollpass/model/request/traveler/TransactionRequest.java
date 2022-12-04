@@ -1,13 +1,12 @@
-package com.tcss559.alltollpass.model.request.user;
+package com.tcss559.alltollpass.model.request.traveler;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.tcss559.alltollpass.entity.user.TransactionType;
+import com.tcss559.alltollpass.entity.traveler.TransactionType;
 import lombok.Data;
 
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class TransactionRequest {
-    private long userId;
     private String rfid;
     private double amount;
     private TransactionType type;

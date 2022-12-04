@@ -1,4 +1,4 @@
-package com.tcss559.alltollpass.entity.user;
+package com.tcss559.alltollpass.entity.traveler;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserRfid implements Serializable {
+public class TravelerRfid implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

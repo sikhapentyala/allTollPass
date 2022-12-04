@@ -1,6 +1,6 @@
-package com.tcss559.alltollpass.model.response.user;
+package com.tcss559.alltollpass.model.response.traveler;
 
-import com.tcss559.alltollpass.entity.user.UserRfid;
+import com.tcss559.alltollpass.entity.traveler.TravelerRfid;
 import lombok.Builder;
 import lombok.Data;
 
@@ -8,11 +8,11 @@ import java.util.List;
 
 @Data
 @Builder
-public class UserResponse {
+public class TravelerResponse {
     private Long userId;
     private String name;
     private String email;
     private double balance;
-    private List<UserRfid> rfids;
+    private List<TravelerRfid> rfids;
 
 }

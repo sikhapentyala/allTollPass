@@ -1,6 +1,6 @@
 package com.tcss559.alltollpass.entity.toll;
 
-import com.tcss559.alltollpass.entity.user.VehicleType;
+import com.tcss559.alltollpass.entity.traveler.VehicleType;
 import lombok.*;
 
 import javax.persistence.Entity;

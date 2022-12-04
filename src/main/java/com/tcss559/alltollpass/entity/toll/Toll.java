@@ -19,11 +19,7 @@ public class Toll {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    private String name;
+    private Long userId;
     private String location;
-    private String isActive;
 
-    @Builder.Default
-    private LocalDateTime createdTimestamp = LocalDateTime.now();
-    private LocalDateTime updatedTimestamp;
 }

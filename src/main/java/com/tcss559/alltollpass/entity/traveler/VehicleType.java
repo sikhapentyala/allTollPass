@@ -1,4 +1,4 @@
-package com.tcss559.alltollpass.entity.user;
+package com.tcss559.alltollpass.entity.traveler;
 
 public enum VehicleType {
     SMALL,

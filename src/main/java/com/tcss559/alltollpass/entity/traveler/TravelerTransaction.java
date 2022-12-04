@@ -1,4 +1,4 @@
-package com.tcss559.alltollpass.entity.user;
+package com.tcss559.alltollpass.entity.traveler;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserTransactions {
+public class TravelerTransaction {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;

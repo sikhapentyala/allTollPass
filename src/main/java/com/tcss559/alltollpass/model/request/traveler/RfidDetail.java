@@ -1,7 +1,7 @@
-package com.tcss559.alltollpass.model.request.user;
+package com.tcss559.alltollpass.model.request.traveler;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.tcss559.alltollpass.entity.user.VehicleType;
+import com.tcss559.alltollpass.entity.traveler.VehicleType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
@@ -9,6 +9,6 @@ import lombok.Data;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class RfidDetail {
     private String rfid;
-    @Schema(type = "String", allowableValues = {"Hearts", "Diamonds", "Clubs", "Spades"})
+    @Schema(type = "String", allowableValues = {"SMALL","MEDIUM","LARGE"})
     private VehicleType vehicleType;
 }
