@@ -1,5 +1,6 @@
 package com.tcss559.alltollpass.service;
 
+import com.tcss559.alltollpass.entity.Role;
 import com.tcss559.alltollpass.entity.User;
 import com.tcss559.alltollpass.exception.DatabaseException;
 import com.tcss559.alltollpass.exception.UserNotFoundException;
@@ -17,10 +18,14 @@ public class UserService {
     @Autowired
     UserRepository userRepository;
 
+    @Autowired
+    TravelerService travelerService;
+
     public UserResponse createUser(UserRequest userRequest) throws DatabaseException {
         User user = User.builder()
                 .username(userRequest.getUsername())
                 .password(userRequest.getPassword())
+                .mobile(userRequest.getMobile())
                 .name(userRequest.getName())
                 .role(userRequest.getRole())
                 .email(userRequest.getEmail())
@@ -28,6 +33,9 @@ public class UserService {
 
         try{
             User savedUser = userRepository.save(user);
+            if (savedUser.getRole() == Role.TRAVELER){
+                travelerService.createTravelerAccount(savedUser.getId());
+            }
             return UserResponse.builder()
                     .id(savedUser.getId())
                     .username(savedUser.getUsername())
@@ -52,5 +60,9 @@ public class UserService {
                 .name(user.getName())
                 .role(user.getRole())
                 .build();
+    }
+
+    public void getUserById(){
+
     }
 }

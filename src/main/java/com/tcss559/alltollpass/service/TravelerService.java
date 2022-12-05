@@ -1,17 +1,11 @@
 package com.tcss559.alltollpass.service;
 
 import com.tcss559.alltollpass.entity.User;
-import com.tcss559.alltollpass.entity.traveler.TransactionType;
-import com.tcss559.alltollpass.entity.traveler.TravelerAccount;
-import com.tcss559.alltollpass.entity.traveler.TravelerRfid;
-import com.tcss559.alltollpass.entity.traveler.TravelerTransaction;
+import com.tcss559.alltollpass.entity.traveler.*;
 import com.tcss559.alltollpass.exception.DatabaseException;
-import com.tcss559.alltollpass.exception.RfidNotFoundException;
 import com.tcss559.alltollpass.exception.UserNotFoundException;
 import com.tcss559.alltollpass.model.request.traveler.RfidRequest;
-import com.tcss559.alltollpass.model.request.traveler.TransactionRequest;
 import com.tcss559.alltollpass.model.request.traveler.TravelerBalance;
-import com.tcss559.alltollpass.model.request.traveler.TravelerRequest;
 import com.tcss559.alltollpass.model.response.traveler.TransactionDetail;
 import com.tcss559.alltollpass.model.response.traveler.TravelerResponse;
 import com.tcss559.alltollpass.model.response.traveler.TravelerRfidResponse;
@@ -24,7 +18,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -130,9 +123,10 @@ public class TravelerService {
                 .build();
     }
 
-    public TravelerResponse deleteRfid(String rfid) throws DatabaseException {
+    public TravelerResponse deleteRfid(String rfid) throws DatabaseException, UserNotFoundException {
+        TravelerRfid existingRfid = travelerRfidRepository.findByRfid(rfid).orElseThrow(() -> new UserNotFoundException("RFID not found"));
         try{
-            TravelerRfid existingRfid = travelerRfidRepository.findByRfid(rfid).orElseThrow(() -> new UserNotFoundException("RFID not found"));
+
             existingRfid.setActive(false);
             travelerRfidRepository.save(existingRfid);
             return getAllRfid(existingRfid.getUserId());
@@ -140,6 +134,11 @@ public class TravelerService {
         }catch (Exception e){
             throw new DatabaseException(e);
         }
+    }
+
+    public VehicleType getVehicleTypeFromRfid(String rfid) throws UserNotFoundException{
+        TravelerRfid existingRfid = travelerRfidRepository.findByRfid(rfid).orElseThrow(() -> new UserNotFoundException("RFID not found"));
+        return existingRfid.getVehicleType();
     }
 
     // Reporrts
@@ -176,7 +175,13 @@ public class TravelerService {
         }
     }
 
-    // Transactions
+    // TravelerAccount creation
+
+    public TravelerAccount createTravelerAccount(Long userId){
+        return travelerAccountRepository.save(TravelerAccount.builder().id(userId).build());
+    }
+
+    // add Toll Transactions
 //    public TravelerBalance createTransaction(TransactionRequest transactionRequest) throws DatabaseException, RfidNotFoundException {
 //        TravelerRfid rfid = travelerRfidRepository.findByRfid(transactionRequest.getRfid()).orElseThrow(() -> new RfidNotFoundException(""));
 //        TravelerAccount user = userRepository.findById(rfid.getUserId()).orElseThrow(() -> new DatabaseException(""));

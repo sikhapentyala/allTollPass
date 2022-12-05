@@ -63,7 +63,7 @@ sourceSets {
 
 task genJaxb {
     ext.sourcesDir = "${buildDir}/generated-sources/jaxb"
-    ext.schema = "src/main/resources/countries.xsd"
+    ext.schema = "src/main/resources/toll.xsd"
 
     outputs.dir sourcesDir
 
@@ -85,6 +85,6 @@ compileJava.dependsOn genJaxb
 
 
 bootJar {
-    archiveBaseName = 'gs-producing-web-service'
-    archiveVersion =  '0.1.0'
+    archiveBaseName = 'all-toll-pass'
+    archiveVersion =  '1.0.0'
 }

@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Getter
 @Setter
-public class TollRates {
+public class TollRate {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
