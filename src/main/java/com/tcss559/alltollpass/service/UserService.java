@@ -52,6 +52,7 @@ public class UserService {
 
     public LoginResponse validateCredentials(LoginRequest loginRequest) {
 
+        //TODO: check if user isActive findByUsernameAndPasswordAndRoleAndIsActive
         User user = userRepository.findByUsernameAndPasswordAndRole(loginRequest.getUsername(), loginRequest.getPassword(), loginRequest.getRole())
                 .orElseThrow(() -> new UserNotFoundException("No Such User Exists"));
         return LoginResponse.builder()

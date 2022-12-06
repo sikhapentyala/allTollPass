@@ -31,7 +31,10 @@ public class TollController {
     @Autowired
     TollService tollService;
 
-
+    /**
+     * A webAPI to check what HTTP methods does this web service use : can be used by developers of Toll Agency
+     * @return
+     */
     @RequestMapping(value="", method = RequestMethod.OPTIONS)
     ResponseEntity<?> tollOptions()
     {
