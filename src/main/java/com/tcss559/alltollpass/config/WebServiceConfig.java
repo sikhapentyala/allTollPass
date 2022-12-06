@@ -18,6 +18,11 @@ import org.springframework.xml.xsd.XsdSchema;
 
 import java.util.Properties;
 
+/**
+ * @author sikha
+ * This file defines SOAP  schema
+ */
+
 @EnableWs
 @Configuration
 public class WebServiceConfig extends WsConfigurerAdapter {

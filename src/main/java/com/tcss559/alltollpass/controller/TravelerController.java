@@ -15,9 +15,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * @author sikha
+ * TravelerController defines the service endpoints (API URIs) to provide services for End-User/Driver
+ */
+
 @RestController
 @RequestMapping("/traveler")
-@Tag(name = "traveler-service", description = "TravelerAccount Service")
+@Tag(name = "traveler-service", description = "TravelerAccount Service : the service endpoints (API URIs) to provide " +
+        "services for End-User/Driver")
 public class TravelerController {
 
     @Autowired
@@ -25,18 +31,39 @@ public class TravelerController {
 
     // Traveller Balance Methods
 
+    /**
+     * Credit a user account when he recharges
+     * @param travelerBalance
+     * @return
+     * @throws DatabaseException
+     * @throws RfidNotFoundException
+     */
     @PutMapping("/balance/credit")
     @ResponseStatus(HttpStatus.CREATED)
     public TravelerBalance rechargeAccount(@RequestBody TravelerBalance travelerBalance) throws DatabaseException, RfidNotFoundException {
         return travelerService.creditTransaction(travelerBalance);
     }
 
+    /**
+     * Debits a user account when he passes the toll and pays toll using AllTollPass
+     * @param debitRequest
+     * @return
+     * @throws DatabaseException
+     * @throws RfidNotFoundException
+     */
     @PutMapping("/balance/debit")
     @ResponseStatus(HttpStatus.CREATED)
     public TravelerBalance collectToll(@RequestBody DebitRequest debitRequest) throws DatabaseException, RfidNotFoundException {
         return travelerService.debitTransaction(debitRequest);
     }
 
+    /**
+     * Gets the current balance
+     * @param userId
+     * @return
+     * @throws DatabaseException
+     * @throws RfidNotFoundException
+     */
     @GetMapping("/balance")
     @ResponseStatus(HttpStatus.OK)
     public double getBalance(@RequestHeader("user_id") Long userId) throws DatabaseException, RfidNotFoundException {
