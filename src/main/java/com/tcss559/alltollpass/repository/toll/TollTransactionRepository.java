@@ -10,6 +10,6 @@ import java.util.Optional;
 @Repository
 public interface TollTransactionRepository extends JpaRepository<TollTransaction, Long> {
     List<TollTransaction> findByAgencyId(Long agencyId);
-
+    List<TollTransaction> findByStatus(String status);
     Optional<TollTransaction> findByAgencyIdAndTollTransactionId(Long agencyId, String transactionId);
 }

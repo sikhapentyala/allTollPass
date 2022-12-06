@@ -114,7 +114,7 @@ public class TravelerService {
     // add a given RFID to a user
     public TravelerResponse addRfid(RfidRequest rfidRequest) throws DatabaseException, UserNotFoundException {
 
-        User user = userRepository.findById(rfidRequest.getUserId()).orElseThrow(() -> new UserNotFoundException(""));
+        User user = userRepository.findById(rfidRequest.getUserId()).orElseThrow(() -> new UserNotFoundException("No user ID found"));
 
         TravelerRfid rfid = TravelerRfid.builder()
                 .userId(rfidRequest.getUserId())
@@ -149,6 +149,7 @@ public class TravelerService {
 
     // fetch all RFIDs of a user
     public TravelerResponse getAllRfid(Long userId) throws DatabaseException {
+        // TODO : do we need to chech for userids too?
         List<TravelerRfid> list = travelerRfidRepository.findByUserIdAndIsActiveTrue(userId);
         return TravelerResponse.builder()
                 .rfids(
