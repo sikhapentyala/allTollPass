@@ -6,7 +6,7 @@ import lombok.Data;
 @Data
 @Builder
 public class LocationRequest {
-    private Long userId;
+    private Long agencyId;
     private String location;
 
 }

@@ -20,7 +20,7 @@ public class TollRate {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    private Long tollId;
+    private Long agencyId;
     private VehicleType vehicleType;
     private double tollRate;
 

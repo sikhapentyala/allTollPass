@@ -19,7 +19,7 @@ public class TollTransaction {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    private Long tollId;
+    private Long agencyId;
     private String rfid;
     private String tollTransactionId;
     private TransactionStatus status;

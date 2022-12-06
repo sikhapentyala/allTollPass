@@ -36,11 +36,14 @@ dependencies {
 
     // SOAP web service
     implementation 'org.springframework.boot:spring-boot-starter-web-services'
-
     implementation 'wsdl4j:wsdl4j'
     jaxb("org.glassfish.jaxb:jaxb-xjc")
     // For Java 11:
     implementation 'org.glassfish.jaxb:jaxb-runtime'
+
+    // Actuator
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+
 
     compileOnly 'org.projectlombok:lombok'
     runtimeOnly 'com.mysql:mysql-connector-j'

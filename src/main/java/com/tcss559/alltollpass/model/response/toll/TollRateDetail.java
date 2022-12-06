@@ -1,4 +1,4 @@
-package com.tcss559.alltollpass.model.request.toll;
+package com.tcss559.alltollpass.model.response.toll;
 
 import com.tcss559.alltollpass.entity.traveler.VehicleType;
 import lombok.Builder;
@@ -6,8 +6,8 @@ import lombok.Data;
 
 @Data
 @Builder
-public class TollRateRequest {
-    private Long agencyId;
+public class TollRateDetail {
     private VehicleType vehicleType;
+    private String location;
     private double tollRate;
 }

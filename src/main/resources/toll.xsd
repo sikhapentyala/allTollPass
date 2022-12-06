@@ -4,7 +4,7 @@
     <xs:element name="TollRequest">
         <xs:complexType>
             <xs:sequence>
-                <xs:element name="tollId" type="xs:long"/>
+                <xs:element name="agencyId" type="xs:long"/>
                 <xs:element name="rfid" type="xs:string"/>
                 <xs:element name="tollTransactionId" type="xs:string"/>
             </xs:sequence>

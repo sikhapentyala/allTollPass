@@ -61,8 +61,4 @@ public class UserService {
                 .role(user.getRole())
                 .build();
     }
-
-    public void getUserById(){
-
-    }
 }
