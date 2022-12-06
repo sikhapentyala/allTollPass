@@ -5,6 +5,14 @@ import lombok.*;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
+/**
+ * @author sikha
+ * A User entity - maintains the user details
+ * Used for registration, login and notifications.
+ *
+ */
+
+
 @Entity
 @Builder
 @NoArgsConstructor

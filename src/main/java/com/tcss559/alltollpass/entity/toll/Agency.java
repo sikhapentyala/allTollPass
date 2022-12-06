@@ -6,6 +6,11 @@ import lombok.*;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
+/**
+ * @author sikha
+ * Entity for Toll Agency. The only propoerty apart from user details is location
+ */
+
 @Entity
 @Builder
 @NoArgsConstructor
@@ -16,6 +21,7 @@ public class Agency {
 
     @Id
     private Long id;
+
     private String location;
 
 }

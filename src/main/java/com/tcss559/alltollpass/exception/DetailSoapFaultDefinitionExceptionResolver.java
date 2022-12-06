@@ -1,5 +1,10 @@
 package com.tcss559.alltollpass.exception;
 
+/**
+ * @author sikha
+ * SOAP based Exception
+ *
+ */
 
 import javax.xml.namespace.QName;
 

@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/admin")
-@Tag(name = "admin-service", description = "AllTollPass Admin Service")
+@Tag(name = "admin-service", description = "AllTollPass Admin Service : A few services for the Administrator at AllTollPass")
 
 public class AdminController {
 

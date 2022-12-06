@@ -5,6 +5,11 @@ import lombok.*;
 import javax.persistence.*;
 import java.io.Serializable;
 
+/**
+ * @author sikha
+ * Entity for End user or the traveller. The only propoerty apart from user details is balance
+ */
+
 @Entity
 @Builder
 @NoArgsConstructor

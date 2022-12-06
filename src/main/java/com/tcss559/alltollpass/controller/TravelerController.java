@@ -70,7 +70,12 @@ public class TravelerController {
         return travelerService.getBalance(userId);
     }
 
+
     // RFID  Methods - add, getAll, getRfid, delete Rfid
+    /**
+     * RFID  Methods - add, getAll, getRfid, delete Rfid
+     *
+     */
     @PostMapping("/rfid")
     @ResponseStatus(HttpStatus.CREATED)
     public TravelerResponse addRfid(@RequestBody RfidRequest rfidRequest) throws DatabaseException, UserNotFoundException {
@@ -96,14 +101,29 @@ public class TravelerController {
     }
 
     // Reports
-    // Report - transactions to display in html
+
+
+    /**
+     * // Report - transactions to display in html
+     * @param userId
+     * @return
+     * @throws DatabaseException
+     * @throws RfidNotFoundException
+     */
     @GetMapping("/reports")
     @ResponseStatus(HttpStatus.OK)
     public TravelerTransactionResponse getReports(@RequestHeader("user_id") Long userId) throws DatabaseException, RfidNotFoundException {
         return travelerService.getTransactionReports(userId);
     }
 
-    // Report - transactions to send the report as email as a CSV file
+
+
+    /**
+     * // Report - transactions to send the report as email as a CSV file
+     * @param userId
+     * @throws DatabaseException
+     * @throws RfidNotFoundException
+     */
     @PostMapping("/reports")
     @ResponseStatus(HttpStatus.ACCEPTED)
     public void sendReports(@RequestHeader("user_id") Long userId) throws DatabaseException, RfidNotFoundException {

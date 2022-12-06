@@ -8,6 +8,14 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
+/**
+ * @author sikha
+ * Entity for maintaining transaction observed for user
+ * These are the transactions either to credit user account when he recharges his account
+ * Or when he travells and toll is collected (debit)
+ *
+ */
+
 @Entity
 @Data
 @Builder

@@ -9,6 +9,13 @@ import javax.persistence.*;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
+/**
+ * @author sikha
+ * Entity for maintaining rfids for every user.
+ * Assumption is that a traveller can have many rfid, and each rfid is registered to a vehicle.
+ *
+ */
+
 @Entity
 @Data
 @Builder

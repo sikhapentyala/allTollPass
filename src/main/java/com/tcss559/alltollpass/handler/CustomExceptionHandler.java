@@ -9,6 +9,12 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 
+/**
+ * @author sikha
+ * Handling exceptions -
+ *
+ */
+
 @RestControllerAdvice
 public class CustomExceptionHandler {
 

@@ -12,6 +12,11 @@ import com.tcss559.alltollpass.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+/**
+ * @author sikha
+ * This service provides business logic for the end points made of user-service
+ */
+
 @Service
 public class UserService {
 
@@ -21,6 +26,10 @@ public class UserService {
     @Autowired
     TravelerService travelerService;
 
+    @Autowired
+    TollService tollService;
+
+    // Creating a user
     public UserResponse createUser(UserRequest userRequest) throws DatabaseException {
         User user = User.builder()
                 .username(userRequest.getUsername())
@@ -36,6 +45,9 @@ public class UserService {
             if (savedUser.getRole() == Role.TRAVELER){
                 travelerService.createTravelerAccount(savedUser.getId());
             }
+            if (savedUser.getRole() == Role.TOLL){
+                tollService.createAgencyAccount(savedUser.getId());
+            }
             return UserResponse.builder()
                     .id(savedUser.getId())
                     .username(savedUser.getUsername())
@@ -50,11 +62,16 @@ public class UserService {
 
     }
 
-    public LoginResponse validateCredentials(LoginRequest loginRequest) {
+    // Validating a user for login
+    public LoginResponse validateCredentials(LoginRequest loginRequest) throws UserNotFoundException{
 
         //TODO: check if user isActive findByUsernameAndPasswordAndRoleAndIsActive
         User user = userRepository.findByUsernameAndPasswordAndRole(loginRequest.getUsername(), loginRequest.getPassword(), loginRequest.getRole())
                 .orElseThrow(() -> new UserNotFoundException("No Such User Exists"));
+        if (!user.isActive())
+        {
+            throw new UserNotFoundException("This user is deactivated");
+        }
         return LoginResponse.builder()
                 .userId(user.getId())
                 .username(user.getUsername())

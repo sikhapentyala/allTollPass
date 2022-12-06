@@ -23,18 +23,30 @@ import org.springframework.ws.server.endpoint.annotation.PayloadRoot;
 import org.springframework.ws.server.endpoint.annotation.RequestPayload;
 import org.springframework.ws.server.endpoint.annotation.ResponsePayload;
 
+/**
+ * @author sikha
+ * This is SOAP based service - the main service of our project
+ * This collects Toll from user when a toll agency does not identify the RFID
+ * This uses service composition to achive above functionality
+ */
+
 @Endpoint
 public class TollWebService {
 
     @Autowired
     AppConfig appConfig;
 
+    // TODO : do these need throws
+    // main method that calls services - input is agencyId, rfid, and transactionId at toll agency
     @PayloadRoot(namespace = "http://localhost:8080/toll", localPart = "TollRequest")
     @ResponsePayload
     public TollResponse intiateTransaction(@RequestPayload TollRequest request){
         try {
+            // Get the vehicle Type from user/traveller based on RFID
             RfidResponse rfidResponse = callServiceToGetVehicleType(request.getRfid());
+            // Get the amount to be deducted/ toll rate from Agency based on vehicle type
             TollRateDetail tollRateDetail = callServiceToGetTollRateByVehicleType(request.getAgencyId(), rfidResponse.getVehicleType());
+            // Collect Toll - deduct balance from users/traveler's account
             TravelerBalance travelerBalance = callServiceToUpdateUserBalance(rfidResponse, tollRateDetail);
 
             TollTransactionRequest.TollTransactionRequestBuilder transactionBuilder = TollTransactionRequest.builder()
@@ -50,13 +62,14 @@ public class TollWebService {
             }
 
             TollResponse response = new TollResponse();
+            // insert the transaction into AllTollPass transactions
             response.setStatus(createTollTransaction(transactionBuilder.build()).toString());
 
             return response;
 
         }catch (Exception e){
 
-            //
+            // IF there is any excpetion we inform the Agency to use fallback system to collect toll
             TollTransactionRequest failedTransaction = TollTransactionRequest.builder()
                     .tollTransactionId(request.getTollTransactionId())
                     .status(TransactionStatus.FALLBACK)
@@ -73,6 +86,7 @@ public class TollWebService {
 
     }
 
+    // This method is used for service composition as service 1
     public RfidResponse callServiceToGetVehicleType(String rfid){
         RestTemplate template = new RestTemplate();
         UriComponents uriComponents = UriComponentsBuilder.fromHttpUrl(appConfig.getServiceUrl()+ AppConstants.GET_VEHICLE_TYPE_BY_RFID).build();
@@ -94,7 +108,7 @@ public class TollWebService {
     }
 
 
-    // This method is used for service composition as service 1
+    // This method is used for service composition as service 2
     public TollRateDetail callServiceToGetTollRateByVehicleType(Long agencyId, VehicleType vehicleType){
         RestTemplate template = new RestTemplate();
         UriComponents uriComponents = UriComponentsBuilder.fromHttpUrl(appConfig.getServiceUrl()+ AppConstants.GET_TOLL_RATE_BY_AGENCY).build();
@@ -120,7 +134,7 @@ public class TollWebService {
     }
 
 
-    // This method is used for service composition as service 2
+    // This method is used for service composition as service 3
     public TravelerBalance callServiceToUpdateUserBalance(RfidResponse rfidResponse, TollRateDetail tollRateDetail){
         RestTemplate template = new RestTemplate();
         UriComponents uriComponents = UriComponentsBuilder.fromHttpUrl(appConfig.getServiceUrl()+ AppConstants.DEDUCT_AMOUNT).build();
@@ -146,9 +160,10 @@ public class TollWebService {
         }
     }
 
+    //TODO : Check
     public TransactionStatus createTollTransaction(TollTransactionRequest request){
         RestTemplate template = new RestTemplate();
-        UriComponents uriComponents = UriComponentsBuilder.fromHttpUrl(appConfig.getServiceUrl()+ AppConstants.DEDUCT_AMOUNT).build();
+        UriComponents uriComponents = UriComponentsBuilder.fromHttpUrl(appConfig.getServiceUrl()+ AppConstants.CREATE_TRANSACTION).build();
 
         HttpEntity<TollTransactionRequest> entity = new HttpEntity<>(request);
 
@@ -158,12 +173,14 @@ public class TollWebService {
             if (response.getStatusCode() == HttpStatus.CREATED) {
                 return response.getBody();
             } else {
-                throw new RuntimeException("Update balance service threw " + response.getStatusCode().getReasonPhrase());
+                throw new RuntimeException("Create transaction service threw " + response.getStatusCode().getReasonPhrase());
             }
         }catch (Exception e){
             throw new RuntimeException(e);
         }
     }
+
+    //TODO: Write a cron job to change transaction is in_process ,
 
 
 

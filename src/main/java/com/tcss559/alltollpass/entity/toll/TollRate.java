@@ -9,6 +9,13 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import java.time.LocalDateTime;
 
+/**
+ * @author sikha
+ * Entity for maintaining rates at every toll agenecy.
+ * Assumption that there are only 3 vehicle types (Enum VehicleType)
+ *
+ */
+
 @Entity
 @Builder
 @NoArgsConstructor
@@ -20,6 +27,7 @@ public class TollRate {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+
     private Long agencyId;
     private VehicleType vehicleType;
     private double tollRate;

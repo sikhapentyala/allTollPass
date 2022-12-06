@@ -8,6 +8,15 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import java.time.LocalDateTime;
 
+/**
+ * @author sikha
+ * Entity for maintaining transaction observed at AllTollPass
+ * These are the transactions to made for Toll Agencies.
+ * The toll Agency will provide agencyid, rfid and its local unique transaction id
+ *
+ */
+
+
 @Entity
 @Builder
 @NoArgsConstructor
@@ -19,9 +28,11 @@ public class TollTransaction {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+
     private Long agencyId;
     private String rfid;
     private String tollTransactionId;
+
     private TransactionStatus status;
 
     @Builder.Default

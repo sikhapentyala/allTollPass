@@ -5,6 +5,7 @@ import com.tcss559.alltollpass.entity.toll.Agency;
 import com.tcss559.alltollpass.entity.toll.TollRate;
 import com.tcss559.alltollpass.entity.toll.TollTransaction;
 import com.tcss559.alltollpass.entity.toll.TransactionStatus;
+import com.tcss559.alltollpass.entity.traveler.TravelerAccount;
 import com.tcss559.alltollpass.exception.DatabaseException;
 import com.tcss559.alltollpass.exception.TollNotFoundException;
 import com.tcss559.alltollpass.model.request.toll.LocationRequest;
@@ -25,11 +26,17 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+/**
+ * @author sikha
+ * This service provides business logic for the end points for toll agency
+ */
+
 @Service
 public class TollService {
 
     @Autowired
     AppConfig appConfig;
+
     @Autowired
     AgencyRepository agencyRepository;
 
@@ -39,11 +46,17 @@ public class TollService {
     @Autowired
     TollTransactionRepository tollTransactionRepository;
 
-    @Autowired
-    UserService userService;
+    //@Autowired
+    //UserService userService;
 
 
-    public LocationResponse updateLocation(LocationRequest locationRequest) {
+    /**
+     * Provide location of the toll agency
+     * @param locationRequest
+     * @return
+     */
+
+    public LocationResponse updateLocation(LocationRequest locationRequest) throws RuntimeException{
         Agency agency = agencyRepository.save(Agency.builder()
                 .location(locationRequest.getLocation())
                 .id(locationRequest.getAgencyId())
@@ -56,7 +69,14 @@ public class TollService {
                 .build();
     }
 
-    public TollRateResponse upsertTollRates(TollRateRequest tollRateRequest) {
+    /**
+     * Toll rate based methods
+     *
+     */
+
+    // insert and update the toll rates
+    // TODO : get explanation for UI
+    public TollRateResponse upsertTollRates(TollRateRequest tollRateRequest) throws TollNotFoundException, DatabaseException{
         Agency agency = agencyRepository.findById(tollRateRequest.getAgencyId()).orElseThrow(() -> new TollNotFoundException("Toll not found"));
         Optional<TollRate> optionalRate = tollRateRepository.findByAgencyIdAndVehicleType(agency.getId(), tollRateRequest.getVehicleType());
         TollRate rate;
@@ -92,7 +112,8 @@ public class TollService {
         }
     }
 
-    public TollRateResponse getTollRates(Long agencyId) {
+    // Get all toll rates for a given toll agency
+    public TollRateResponse getTollRates(Long agencyId)  throws TollNotFoundException, DatabaseException{
         Agency agency = agencyRepository.findById(agencyId).orElseThrow(() -> new TollNotFoundException("Toll not found"));
         List<TollRate> rates = tollRateRepository.findByAgencyId(agency.getId());
         return TollRateResponse.builder()
@@ -110,7 +131,8 @@ public class TollService {
 
     }
 
-    public TollRateResponse deleteTollRate(TollRateRequest tollRateRequest) {
+    // Delete toll rate for gievn agency and vehicle type
+    public TollRateResponse deleteTollRate(TollRateRequest tollRateRequest) throws TollNotFoundException, DatabaseException {
         Agency agency = agencyRepository.findById(tollRateRequest.getAgencyId()).orElseThrow(() -> new TollNotFoundException("Toll not found"));
         tollRateRepository.deleteByAgencyIdAndVehicleType(agency.getId(), tollRateRequest.getVehicleType());
 
@@ -129,8 +151,13 @@ public class TollService {
                 .build();
     }
 
+    /**
+     * Get status of transaction from AllTollPass
+     *
+     */
 
-    public List<TransactionResponse> getTransactionReportForAgency(Long agencyId) {
+    // Get report of all transactions for a Toll Agency maintained at AllTollPass
+    public List<TransactionResponse> getTransactionReportForAgency(Long agencyId)  throws TollNotFoundException, DatabaseException{
         Agency agency = agencyRepository.findById(agencyId).orElseThrow(() -> new TollNotFoundException("No Toll found"));
         List<TollTransaction> transactions = tollTransactionRepository.findByAgencyId(agency.getId());
         return transactions.stream().map(it ->
@@ -145,7 +172,8 @@ public class TollService {
                 .collect(Collectors.toList());
     }
 
-    public TransactionResponse getTransactionStatusByAgencyId(String transactionId, Long agencyId) {
+    // Get status of a transaction for a Toll Agency maintained at AllTollPass
+    public TransactionResponse getTransactionStatusByAgencyId(String transactionId, Long agencyId) throws TollNotFoundException, DatabaseException {
         Agency agency = agencyRepository.findById(agencyId).orElseThrow(() -> new TollNotFoundException("No Toll found"));
         TollTransaction tollTransaction = tollTransactionRepository.findByAgencyIdAndTollTransactionId(agency.getId(), transactionId).orElseThrow(() -> new TollNotFoundException("No TransactionId Found"));
 
@@ -158,7 +186,11 @@ public class TollService {
     }
 
 
-    public TransactionStatus createTollTransaction(TollTransactionRequest request) {
+    /**
+     * Create the transaction for toll collection
+     *
+     */
+    public TransactionStatus createTollTransaction(TollTransactionRequest request)  throws RuntimeException{
 
         TollTransaction transaction = TollTransaction.builder()
                 .rfid(request.getRfid())
@@ -168,5 +200,18 @@ public class TollService {
                 .build();
 
         return tollTransactionRepository.save(transaction).getStatus();
+    }
+
+
+    /**
+     * Toll account creation
+     *
+     */
+
+
+    // When a user regeisters as toll, also create a account for him with nill location
+    // TODO: check
+    public Agency createAgencyAccount(Long userId) throws RuntimeException{
+        return agencyRepository.save(Agency.builder().id(userId).build());
     }
 }

@@ -1,5 +1,11 @@
 package com.tcss559.alltollpass.exception;
 
+/**
+ * @author sikha
+ * DB Exception
+ *
+ */
+
 public class DatabaseException extends RuntimeException{
 
     public DatabaseException(String message) {
