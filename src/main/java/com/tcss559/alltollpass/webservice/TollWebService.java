@@ -51,6 +51,7 @@ public class TollWebService {
             TollTransactionRequest.TollTransactionRequestBuilder transactionBuilder = TollTransactionRequest.builder()
                     .tollTransactionId(request.getTollTransactionId())
                     .rfid(request.getRfid())
+                    .amount(tollRateDetail.getTollRate())
                     .agencyId(request.getAgencyId());
 
 

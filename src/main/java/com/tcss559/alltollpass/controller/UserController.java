@@ -46,7 +46,7 @@ public class UserController {
      * @param loginRequest - JSON entity
      * @return
      */
-    @GetMapping("/login")
+    @PostMapping("/login")
     @ResponseStatus(HttpStatus.OK)
     //@Tag(name = "authenticateUser", description = "Validates if the logging user is valid  ")
     public LoginResponse authenticateUser(@RequestBody LoginRequest loginRequest){

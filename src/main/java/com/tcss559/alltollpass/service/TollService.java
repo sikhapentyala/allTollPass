@@ -211,6 +211,7 @@ public class TollService {
         TollTransaction transaction = TollTransaction.builder()
                 .rfid(request.getRfid())
                 .status(request.getStatus())
+                .amount(request.getAmount())
                 .tollTransactionId(request.getTollTransactionId())
                 .agencyId(request.getAgencyId())
                 .build();
@@ -226,7 +227,6 @@ public class TollService {
 
 
     // When a user regeisters as toll, also create a account for him with nill location
-    // TODO: check
     public Agency createAgencyAccount(Long userId) throws RuntimeException{
         return agencyRepository.save(Agency.builder().id(userId).build());
     }

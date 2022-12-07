@@ -33,6 +33,9 @@ public class TollTransaction {
     private String rfid;
     private String tollTransactionId;
 
+    //TODO: amount
+    private double amount;
+
     private TransactionStatus status;
 
     @Builder.Default

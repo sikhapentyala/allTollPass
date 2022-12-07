@@ -79,8 +79,8 @@ public class UserService {
                 .build();
     }
 
-    public User validateUser(Long userId) throws UserNotFoundException{
-        User user = userRepository.findByIdAndIsActiveTrue(userId).orElseThrow(() -> new UserNotFoundException("The User/Agency is deactivated"));
-        return user;
-    }
+    //public User validateUser(Long userId) throws UserNotFoundException{
+    //    User user = userRepository.findByIdAndIsActiveTrue(userId).orElseThrow(() -> new UserNotFoundException("The User/Agency is deactivated"));
+    //    return user;
+    //}
 }

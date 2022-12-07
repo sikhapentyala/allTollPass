@@ -10,5 +10,7 @@ public class TollTransactionRequest {
     private Long agencyId;
     private String rfid;
     private String tollTransactionId;
+    //TODO: amount
+    private double amount;
     private TransactionStatus status;
 }

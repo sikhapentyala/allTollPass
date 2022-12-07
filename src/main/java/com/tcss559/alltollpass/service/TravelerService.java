@@ -149,7 +149,6 @@ public class TravelerService {
 
     // fetch all RFIDs of a user
     public TravelerResponse getAllRfid(Long userId) throws DatabaseException {
-        // TODO : do we need to chech for userids too?
         List<TravelerRfid> list = travelerRfidRepository.findByUserId(userId);
         return TravelerResponse.builder()
                 .rfids(
