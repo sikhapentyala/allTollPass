@@ -1,14 +1,11 @@
 package com.tcss559.alltollpass.service;
 
 import com.tcss559.alltollpass.config.AppConfig;
-import com.tcss559.alltollpass.entity.Role;
 import com.tcss559.alltollpass.entity.User;
 import com.tcss559.alltollpass.entity.toll.TollTransaction;
 import com.tcss559.alltollpass.entity.toll.TransactionStatus;
 import com.tcss559.alltollpass.exception.DatabaseException;
 import com.tcss559.alltollpass.exception.UserNotFoundException;
-import com.tcss559.alltollpass.model.request.UserRequest;
-import com.tcss559.alltollpass.model.response.UserResponse;
 import com.tcss559.alltollpass.model.response.UserResponseXML;
 import com.tcss559.alltollpass.model.response.toll.TransactionResponse;
 import com.tcss559.alltollpass.repository.UserRepository;

@@ -1,7 +1,7 @@
 package com.tcss559.alltollpass.controller;
+
 import com.tcss559.alltollpass.exception.DatabaseException;
 import com.tcss559.alltollpass.exception.UserNotFoundException;
-import com.tcss559.alltollpass.model.request.UserRequest;
 import com.tcss559.alltollpass.model.response.UserResponseXML;
 import com.tcss559.alltollpass.model.response.toll.TransactionResponse;
 import com.tcss559.alltollpass.service.AdminService;

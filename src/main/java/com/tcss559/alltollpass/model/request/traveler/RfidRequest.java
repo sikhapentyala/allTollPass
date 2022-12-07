@@ -5,8 +5,6 @@ import com.tcss559.alltollpass.entity.traveler.VehicleType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
-import java.util.List;
-
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class RfidRequest {

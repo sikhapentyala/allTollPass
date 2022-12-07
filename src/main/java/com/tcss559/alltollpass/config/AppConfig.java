@@ -15,4 +15,16 @@ public class AppConfig {
 
     @Value("${service.url}")
     private String serviceUrl;
+
+    @Value("${twilio.sid}")
+    private String twilioSid;
+
+    @Value("${twilio.token}")
+    private String twilioToken;
+
+    @Value("${twilio.number}")
+    private String twilioNumber;
+
+    @Value("{mailslurp.api_key}")
+    private String mailSlurpKey;
 }

@@ -1,7 +1,5 @@
 package com.tcss559.alltollpass.controller;
 
-import com.tcss559.alltollpass.entity.traveler.TravelerAccount;
-import com.tcss559.alltollpass.exception.UserNotFoundException;
 import com.tcss559.alltollpass.model.request.LoginRequest;
 import com.tcss559.alltollpass.model.request.UserRequest;
 import com.tcss559.alltollpass.model.response.LoginResponse;

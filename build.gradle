@@ -19,6 +19,7 @@ configurations {
 }
 
 repositories {
+    maven { url 'https://jitpack.io' }
     mavenCentral()
 }
 
@@ -34,6 +35,8 @@ dependencies {
     implementation 'com.fasterxml.jackson.core:jackson-core:2.14.1'
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.14.1'
     implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.14.1'
+    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.14.1'
+
 
 
     // SOAP web service
@@ -46,6 +49,8 @@ dependencies {
     // Actuator
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
 
+    // MailSlurp
+    implementation 'com.github.mailslurp:mailslurp-client-java:15.14.0'
 
     compileOnly 'org.projectlombok:lombok'
     runtimeOnly 'com.mysql:mysql-connector-j'

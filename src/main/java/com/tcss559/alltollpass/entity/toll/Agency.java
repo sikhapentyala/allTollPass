@@ -1,6 +1,5 @@
 package com.tcss559.alltollpass.entity.toll;
 
-import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
 import javax.persistence.Entity;

@@ -1,14 +1,16 @@
 package com.tcss559.alltollpass.service;
 
 import com.tcss559.alltollpass.config.AppConfig;
-import com.tcss559.alltollpass.config.AppConstants;
 import com.tcss559.alltollpass.entity.User;
-import com.tcss559.alltollpass.entity.traveler.*;
+import com.tcss559.alltollpass.entity.traveler.TransactionType;
+import com.tcss559.alltollpass.entity.traveler.TravelerAccount;
+import com.tcss559.alltollpass.entity.traveler.TravelerRfid;
+import com.tcss559.alltollpass.entity.traveler.TravelerTransaction;
 import com.tcss559.alltollpass.exception.DatabaseException;
 import com.tcss559.alltollpass.exception.ExtrenalServiceException;
 import com.tcss559.alltollpass.exception.RfidNotFoundException;
 import com.tcss559.alltollpass.exception.UserNotFoundException;
-import com.tcss559.alltollpass.model.request.toll.TollTransactionRequest;
+import com.tcss559.alltollpass.model.external.SMSRequest;
 import com.tcss559.alltollpass.model.request.traveler.DebitRequest;
 import com.tcss559.alltollpass.model.request.traveler.RfidRequest;
 import com.tcss559.alltollpass.model.request.traveler.TravelerBalance;
@@ -18,11 +20,7 @@ import com.tcss559.alltollpass.repository.traveler.TravelerAccountRepository;
 import com.tcss559.alltollpass.repository.traveler.TravelerRfidRepository;
 import com.tcss559.alltollpass.repository.traveler.TravelerTransactionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponents;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -104,14 +102,19 @@ public class TravelerService {
             TravelerTransaction savedTransaction = travelerTransactionRepository.save(travelerTransaction);
 
             // update TravelerAccount
-            double updatedBalance = travelerTransaction.getType() == TransactionType.CREDIT ?
+            double updatedBalance = savedTransaction.getType() == TransactionType.CREDIT ?
                     (travelerAccount.getBalance() + savedTransaction.getAmount()) :
                     (travelerAccount.getBalance() - savedTransaction.getAmount());
 
             travelerAccount.setBalance(updatedBalance);
             TravelerAccount savedAccount = travelerAccountRepository.save(travelerAccount);
 
-            externalService.sendSMS();
+            externalService.sendSMS(SMSRequest.builder()
+                            .transactionType(savedTransaction.getType())
+                            .currentBalance(savedAccount.getBalance())
+                            .number(user.getMobile())
+                            .amount(savedTransaction.getAmount())
+                    .build());
 
             return TravelerBalance.builder().userId(savedAccount.getId()).amount(savedAccount.getBalance()).build();
         }
@@ -209,7 +212,7 @@ public class TravelerService {
                                             .rfid(it.getRfid())
                                             .type(it.getType())
                                             .amount(it.getAmount())
-                                            .createdTimestamp(it.getTimestamp())
+                                            .createdTimestamp(it.getTimestamp().toString())
                                             .tollLocation(it.getTollLocation())
                                             .build()
                             )
@@ -226,7 +229,7 @@ public class TravelerService {
         try {
             TravelerTransactionResponse travelerTransactionResponse = getTransactionReports(userId);
             //TODO: create CSV and send email
-            externalService.sendEmail();
+//            externalService.sendEmail();
         }catch (Exception e){
             throw new DatabaseException(e);
         }

@@ -4,22 +4,19 @@ import com.tcss559.alltollpass.entity.toll.TollTransaction;
 import com.tcss559.alltollpass.entity.toll.TransactionStatus;
 import com.tcss559.alltollpass.entity.traveler.TravelerAccount;
 import com.tcss559.alltollpass.entity.traveler.TravelerRfid;
-import com.tcss559.alltollpass.exception.DatabaseException;
-import com.tcss559.alltollpass.exception.RfidNotFoundException;
-import com.tcss559.alltollpass.exception.UserNotFoundException;
-import com.tcss559.alltollpass.repository.UserRepository;
+import com.tcss559.alltollpass.model.request.traveler.DebitRequest;
+import com.tcss559.alltollpass.model.request.traveler.TravelerBalance;
 import com.tcss559.alltollpass.repository.toll.TollTransactionRepository;
 import com.tcss559.alltollpass.repository.traveler.TravelerAccountRepository;
 import com.tcss559.alltollpass.repository.traveler.TravelerRfidRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -39,53 +36,82 @@ public class Scheduler {
     @Autowired
     TravelerRfidRepository travelerRfidRepository;
 
+    @Autowired
+    TravelerService travelerService;
 
-
-        //TODO: In production, this would be a service endpoint that would be called at a schedule
+    //TODO: In production, this would be a service endpoint that would be called at a schedule
     // instead of this being a cron method itself. This is for POC only.
 
     @Scheduled(cron = "0 * 0 ? * *")
-    public void updateTransactionStatus() throws RfidNotFoundException,UserNotFoundException,DatabaseException{
+    public void tet(){
+        System.out.println("Runnign cron");
+    }
+
+    public void updateTransactionStatus(){
 
         try {
             // Get all transactions that are inprocess
             List<TollTransaction> transactions = tollTransactionRepository.findByStatus(TransactionStatus.IN_PROCESS);
 
             //Generate a map with <RFID, associated transactions in process> sort in created timestamp
-            //TODO : sort by createdtimestmap
             Map<String, List<TollTransaction>> transactionsMapForRFID = transactions.stream()
                     .collect(Collectors.groupingBy(TollTransaction::getRfid));
+
 
             // for each rfid in map check the user balance, deduct balance in sequence and change the status to suceess
             for (Map.Entry<String, List<TollTransaction>> entry : transactionsMapForRFID.entrySet()) {
                 // Get user id
-                TravelerRfid thisRfid = travelerRfidRepository.findByRfid(entry.getKey()).
-                        orElseThrow(() -> new RfidNotFoundException("RFID not found"));
+                Optional<TravelerRfid> optionRfid = travelerRfidRepository.findByRfid(entry.getKey());
+                if(optionRfid.isEmpty()){
+                    //TODO: check if "continue" will continue with other records
+                    continue;
+                }
 
-                TravelerAccount travelerAccount = travelerAccountRepository.findById(thisRfid.getUserId()).
-                        orElseThrow(() -> new UserNotFoundException("User not found"));
+
+                Optional<TravelerAccount> travelerAccount = travelerAccountRepository.findById(optionRfid.get().getUserId());
+                if(travelerAccount.isEmpty()){
+                    //TODO: check if "continue" will continue with other records
+                    continue;
+                }
 
                 //Get balance for that rfid user account
-                double balanceToUpdate = travelerAccount.getBalance();
-                List<TollTransaction> toUpdateTransactions = entry.getValue();
+                double balanceToUpdate = travelerAccount.get().getBalance();
+                TransactionStatus statusToSet = TransactionStatus.FALLBACK;
 
-                for(TollTransaction t : toUpdateTransactions)
+                List<TollTransaction> sortedList = entry.getValue().stream()
+                        .sorted(Comparator.comparing(TollTransaction::getCreateTimestamp))
+                        .collect(Collectors.toList());
+
+                for(TollTransaction t : sortedList)
                 {
                     // we dnt have the amount in the toll transaction table. Need to update it. --> done
                     if(balanceToUpdate >= t.getAmount()) {
-                        balanceToUpdate -= t.getAmount();
 
+                        try {
+                            TravelerBalance newBalance = travelerService.debitTransaction(DebitRequest.builder()
+                                    .rfid(t.getRfid())
+                                    .userId(optionRfid.get().getUserId())
+                                    .amount(t.getAmount())
+                                    .tollLocation("SCHEDULER")
+                                    .build());
+                            balanceToUpdate = newBalance.getAmount();
+                            statusToSet = TransactionStatus.SUCCESS;
+                        }catch (Exception e){
+                            System.out.println("Scheduler threw exception while debiting user balance: "+ e.getMessage());
+                            continue;
+                        }
                     }
 
+                    t.setStatus(statusToSet);
+                    tollTransactionRepository.save(t);
                 }
 
             }
 
-            System.out.println("Running cron job");
         }
         catch(Exception e)
         {
-            throw new DatabaseException(e);
+            System.out.println("Scheduler threw exception: " + e.getMessage());
         }
 
     }

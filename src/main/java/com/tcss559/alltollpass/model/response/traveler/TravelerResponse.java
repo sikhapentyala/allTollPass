@@ -1,6 +1,5 @@
 package com.tcss559.alltollpass.model.response.traveler;
 
-import com.tcss559.alltollpass.entity.traveler.TravelerRfid;
 import lombok.Builder;
 import lombok.Data;
 
