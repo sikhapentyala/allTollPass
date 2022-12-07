@@ -4,6 +4,7 @@ import com.tcss559.alltollpass.entity.toll.TransactionStatus;
 import lombok.Builder;
 import lombok.Data;
 
+import javax.xml.bind.annotation.XmlRootElement;
 import java.time.LocalDateTime;
 
 @Data

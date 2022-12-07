@@ -8,4 +8,5 @@ import java.util.Optional;
 
 @Repository
 public interface AgencyRepository extends JpaRepository<Agency, Long> {
+
 }

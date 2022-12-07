@@ -65,7 +65,6 @@ public class UserService {
     // Validating a user for login
     public LoginResponse validateCredentials(LoginRequest loginRequest) throws UserNotFoundException{
 
-        //TODO: check if user isActive findByUsernameAndPasswordAndRoleAndIsActive
         User user = userRepository.findByUsernameAndPasswordAndRole(loginRequest.getUsername(), loginRequest.getPassword(), loginRequest.getRole())
                 .orElseThrow(() -> new UserNotFoundException("No Such User Exists"));
         if (!user.isActive())
@@ -78,5 +77,10 @@ public class UserService {
                 .name(user.getName())
                 .role(user.getRole())
                 .build();
+    }
+
+    public User validateUser(Long userId) throws UserNotFoundException{
+        User user = userRepository.findByIdAndIsActiveTrue(userId).orElseThrow(() -> new UserNotFoundException("The User/Agency is deactivated"));
+        return user;
     }
 }

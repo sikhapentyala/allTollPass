@@ -49,6 +49,9 @@ public class TravelerService {
     @Autowired
     TravelerAccountRepository travelerAccountRepository;
 
+    @Autowired
+    ExternalService externalService;
+
 
     /**
      * User account balance based methods
@@ -92,6 +95,7 @@ public class TravelerService {
 
     // update users account - update balance
     private TravelerBalance updateTravelerBalance(TravelerTransaction travelerTransaction, Long userId) throws UserNotFoundException, ExtrenalServiceException {
+        User user = userRepository.findByIdAndIsActiveTrue(userId).orElseThrow(() -> new UserNotFoundException("The User/Agency is deactivated"));
         TravelerAccount travelerAccount =  travelerAccountRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User Not found"));
 
@@ -107,14 +111,7 @@ public class TravelerService {
             travelerAccount.setBalance(updatedBalance);
             TravelerAccount savedAccount = travelerAccountRepository.save(travelerAccount);
 
-            //TODO: send sms to user on mobile
-            User user = userRepository.findById(savedAccount.getId()).orElseThrow(() -> new UserNotFoundException("User not found"));
-            //user.getMobile();
-            RestTemplate restTemplate = new RestTemplate();
-            UriComponents uriComponents = UriComponentsBuilder.fromHttpUrl(AppConstants.SEND_SMS).build();
-
-
-
+            externalService.sendSMS();
 
             return TravelerBalance.builder().userId(savedAccount.getId()).amount(savedAccount.getBalance()).build();
         }
@@ -141,22 +138,9 @@ public class TravelerService {
 
         try{
             TravelerRfid savedRfid = travelerRfidRepository.save(rfid);
-            List<TravelerRfid> list = travelerRfidRepository.findByUserId(user.getId());
 
             // return the list of rfids for disply
-            // TODO:Future - could have called getAllRFIDs
-            return TravelerResponse.builder()
-                    .userId(user.getId())
-                    .rfids(list.stream()
-                            .map(it -> TravelerRfidResponse.builder()
-                                    .rfid(it.getRfid())
-                                    .createdTimestamp(it.getCreatedTimestamp())
-                                    .vehicleType(it.getVehicleType())
-                                    .build()
-                            )
-                            .collect(Collectors.toList())
-                    )
-                    .build();
+            return getAllRfid(user.getId());
 
         }catch (Exception e){
             throw new DatabaseException(e);
@@ -166,7 +150,7 @@ public class TravelerService {
     // fetch all RFIDs of a user
     public TravelerResponse getAllRfid(Long userId) throws DatabaseException {
         // TODO : do we need to chech for userids too?
-        List<TravelerRfid> list = travelerRfidRepository.findByUserIdAndIsActiveTrue(userId);
+        List<TravelerRfid> list = travelerRfidRepository.findByUserId(userId);
         return TravelerResponse.builder()
                 .rfids(
                     list.stream()
@@ -191,18 +175,6 @@ public class TravelerService {
                 .userId(existingRfid.getUserId())
                 .vehicleType(existingRfid.getVehicleType())
                 .build();
-    }
-
-    //TODO: Repeat of getByRfid
-    // Fetches only vehicle type from a given rfid
-    public VehicleType getVehicleTypeFromRfid(String rfid) throws UserNotFoundException{
-        TravelerRfid existingRfid = travelerRfidRepository.findByRfid(rfid).orElseThrow(() -> new UserNotFoundException("RFID not found"));
-        return existingRfid.getVehicleType();
-    }
-    // TODO : Delete this
-    public void getUserByRfid(String rfid) throws UserNotFoundException{
-        travelerRfidRepository.findByRfid(rfid).orElseThrow(() -> new UserNotFoundException("RFID not found"));
-
     }
 
     // Delete RFID for a given user
@@ -255,6 +227,7 @@ public class TravelerService {
         try {
             TravelerTransactionResponse travelerTransactionResponse = getTransactionReports(userId);
             //TODO: create CSV and send email
+            externalService.sendEmail();
         }catch (Exception e){
             throw new DatabaseException(e);
         }

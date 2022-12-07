@@ -36,7 +36,6 @@ public class TollWebService {
     @Autowired
     AppConfig appConfig;
 
-    // TODO : do these need throws
     // main method that calls services - input is agencyId, rfid, and transactionId at toll agency
     @PayloadRoot(namespace = "http://localhost:8080/toll", localPart = "TollRequest")
     @ResponsePayload
@@ -180,7 +179,7 @@ public class TollWebService {
         }
     }
 
-    //TODO: Write a cron job to change transaction is in_process ,
+
 
 
 

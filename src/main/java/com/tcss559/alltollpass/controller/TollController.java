@@ -144,7 +144,7 @@ public class TollController {
         return tollService.createTollTransaction(request);
     }
 
-    // TODO:  write and endpoint for view
+    // TODO:  write and endpoint for view http method
 
 
 }
