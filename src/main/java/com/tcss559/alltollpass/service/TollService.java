@@ -206,7 +206,7 @@ public class TollService {
      *
      */
     public TransactionStatus createTollTransaction(TollTransactionRequest request)  throws RuntimeException{
-        User user = userRepository.findByIdAndIsActiveTrue(request.getAgencyId()).orElseThrow(() -> new UserNotFoundException("The User/Agency is deactivated"));
+        //User user = userRepository.findByIdAndIsActiveTrue(request.getAgencyId()).orElseThrow(() -> new UserNotFoundException("The User/Agency is deactivated"));
         TollTransaction transaction = TollTransaction.builder()
                 .rfid(request.getRfid())
                 .status(request.getStatus())

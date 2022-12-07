@@ -37,9 +37,11 @@ public class TollWebService {
     AppConfig appConfig;
 
     // main method that calls services - input is agencyId, rfid, and transactionId at toll agency
-    @PayloadRoot(namespace = "http://localhost:8080/toll", localPart = "TollRequest")
+    //http://localhost:8080/ws/toll.wsdl
+    @PayloadRoot(namespace = "http://com/tcss559/alltollpass", localPart = "TollRequest")
     @ResponsePayload
     public TollResponse intiateTransaction(@RequestPayload TollRequest request){
+        double amountForThisTransaction = 0.0;
         try {
             // Get the vehicle Type from user/traveller based on RFID
             RfidResponse rfidResponse = callServiceToGetVehicleType(request.getRfid());
@@ -54,7 +56,7 @@ public class TollWebService {
                     .amount(tollRateDetail.getTollRate())
                     .agencyId(request.getAgencyId());
 
-
+            amountForThisTransaction = tollRateDetail.getTollRate();
             if(travelerBalance.getAmount() >= 0){
                 transactionBuilder.status(TransactionStatus.SUCCESS);
             } else if (travelerBalance.getAmount() < 0) {
@@ -74,11 +76,13 @@ public class TollWebService {
                     .tollTransactionId(request.getTollTransactionId())
                     .status(TransactionStatus.FALLBACK)
                     .rfid(request.getRfid())
+                    .amount(amountForThisTransaction)
                     .agencyId(request.getAgencyId())
                     .build();
 
 
             TollResponse response = new TollResponse();
+            //calling web service
             response.setStatus(createTollTransaction(failedTransaction).toString());
 
             return response;
@@ -173,10 +177,12 @@ public class TollWebService {
             if (response.getStatusCode() == HttpStatus.CREATED) {
                 return response.getBody();
             } else {
-                throw new RuntimeException("Create transaction service threw " + response.getStatusCode().getReasonPhrase());
+                //throw new RuntimeException("Create transaction service threw " + response.getStatusCode().getReasonPhrase());
+                return TransactionStatus.FALLBACK;
             }
         }catch (Exception e){
-            throw new RuntimeException(e);
+            //throw new RuntimeException(e);
+            return TransactionStatus.FALLBACK;
         }
     }
 
