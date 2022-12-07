@@ -1,11 +1,14 @@
 package com.tcss559.alltollpass.service;
 
+import com.tcss559.alltollpass.config.AppConfig;
+import com.tcss559.alltollpass.config.AppConstants;
 import com.tcss559.alltollpass.entity.User;
 import com.tcss559.alltollpass.entity.traveler.*;
 import com.tcss559.alltollpass.exception.DatabaseException;
 import com.tcss559.alltollpass.exception.ExtrenalServiceException;
 import com.tcss559.alltollpass.exception.RfidNotFoundException;
 import com.tcss559.alltollpass.exception.UserNotFoundException;
+import com.tcss559.alltollpass.model.request.toll.TollTransactionRequest;
 import com.tcss559.alltollpass.model.request.traveler.DebitRequest;
 import com.tcss559.alltollpass.model.request.traveler.RfidRequest;
 import com.tcss559.alltollpass.model.request.traveler.TravelerBalance;
@@ -15,7 +18,11 @@ import com.tcss559.alltollpass.repository.traveler.TravelerAccountRepository;
 import com.tcss559.alltollpass.repository.traveler.TravelerRfidRepository;
 import com.tcss559.alltollpass.repository.traveler.TravelerTransactionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponents;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -27,6 +34,8 @@ import java.util.stream.Collectors;
 
 @Service
 public class TravelerService {
+    @Autowired
+    AppConfig appConfig;
 
     @Autowired
     UserRepository userRepository;
@@ -99,6 +108,13 @@ public class TravelerService {
             TravelerAccount savedAccount = travelerAccountRepository.save(travelerAccount);
 
             //TODO: send sms to user on mobile
+            User user = userRepository.findById(savedAccount.getId()).orElseThrow(() -> new UserNotFoundException("User not found"));
+            //user.getMobile();
+            RestTemplate restTemplate = new RestTemplate();
+            UriComponents uriComponents = UriComponentsBuilder.fromHttpUrl(AppConstants.SEND_SMS).build();
+
+
+
 
             return TravelerBalance.builder().userId(savedAccount.getId()).amount(savedAccount.getBalance()).build();
         }

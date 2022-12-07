@@ -37,7 +37,7 @@ public class AdminService {
     @Autowired
     UserRepository userRepository;
 
-    public void deleteUser(UserRequest userRequest) {
+    public void deleteUser(UserRequest userRequest) throws UserNotFoundException {
         User user = userRepository.findByUsername(userRequest.getUsername()).orElseThrow(() -> new UserNotFoundException("User not found"));
         try{
 
@@ -52,7 +52,7 @@ public class AdminService {
 
     }
 
-    public List<TransactionResponse> getTransactionsByStatus(String status) {
+    public List<TransactionResponse> getTransactionsByStatus(String status) throws RuntimeException {
 
         List<TollTransaction> transactions = tollTransactionRepository.findByStatus(status);
         return transactions.stream().map(it ->
@@ -67,7 +67,7 @@ public class AdminService {
                 .collect(Collectors.toList());
     }
 
-    public UserResponse getUserDetailsByUserName(String username) {
+    public UserResponse getUserDetailsByUserName(String username) throws UserNotFoundException {
         User user = userRepository.findByUsername(username).orElseThrow(() -> new UserNotFoundException("User not found"));
         try{
             return UserResponse.builder()
