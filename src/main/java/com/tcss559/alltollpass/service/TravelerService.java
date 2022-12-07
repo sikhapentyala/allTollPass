@@ -228,8 +228,8 @@ public class TravelerService {
     public void sendReportByEmail(Long userId) throws DatabaseException {
         try {
             TravelerTransactionResponse travelerTransactionResponse = getTransactionReports(userId);
-            //TODO: create CSV and send email
-//            externalService.sendEmail();
+            User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("User not found"));
+            externalService.sendEmail(travelerTransactionResponse.getTransactions(), user, TransactionDetail.class);
         }catch (Exception e){
             throw new DatabaseException(e);
         }

@@ -38,6 +38,11 @@ import java.util.concurrent.TimeUnit;
 
 import static java.util.Collections.singletonList;
 
+/**
+ * @author sikha
+ * This service is for integrating external notification services
+ */
+
 @Service
 public class ExternalService {
 
@@ -46,14 +51,18 @@ public class ExternalService {
 
     private static final Long TIMEOUT = 30000L;
 
+    // method to send SMS using TWILIO
     public void sendSMS(SMSRequest smsRequest){
+        // Initiaiting URI
         RestTemplate restTemplate = new RestTemplate();
         UriComponents uriComponents = UriComponentsBuilder.fromHttpUrl(String.format(AppConstants.SEND_SMS, appConfig.getTwilioSid())).build();
 
+        // Set headers
         HttpHeaders headers = new HttpHeaders();
         headers.setBasicAuth(appConfig.getTwilioSid(), appConfig.getTwilioToken());
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
+        // Create map required for Twilio
         MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
         String body = "Your account has been %sED with amount %s. Your current balance is %s. ";
         String requestBody = String.format(body, smsRequest.getTransactionType().toString(), smsRequest.getAmount(), smsRequest.getCurrentBalance());;
@@ -64,6 +73,7 @@ public class ExternalService {
         map.add("To",smsRequest.getNumber());
         map.add("From", appConfig.getTwilioNumber());
 
+        // Response
         HttpEntity<MultiValueMap<String, String>> entity = new HttpEntity<>(map, headers);
 
         ResponseEntity<String> response =
@@ -74,6 +84,7 @@ public class ExternalService {
         System.out.println(response.getBody());
     }
 
+    // Method to send Email using MailSlurp
     public void sendEmail(List<?> list, User user, Class<?> pojoType) {
         ApiClient defaultClient = Configuration.getDefaultApiClient();
         // IMPORTANT set api client timeouts
@@ -90,6 +101,8 @@ public class ExternalService {
         defaultClient.setHttpClient(httpClient);
         defaultClient.setApiKey(appConfig.getMailSlurpKey());
 
+        // Methods as per MailSlurp github documentation
+        // creation of random inbox
         InboxControllerApi inboxControllerApi = new InboxControllerApi(defaultClient);
         try{
             InboxDto inbox = inboxControllerApi.createInbox(null,
@@ -112,7 +125,7 @@ public class ExternalService {
             ObjectWriter myObjectWriter = mapper.writer(schema);
             byte[] bytes = myObjectWriter.writeValueAsBytes(list);
 
-
+            // Attach the generated report as csv
             AttachmentControllerApi attachmentControllerApi = new AttachmentControllerApi();
 
             UploadAttachmentOptions uploadAttachmentOptions = new UploadAttachmentOptions();
@@ -122,11 +135,12 @@ public class ExternalService {
             // for legacy reasons returns array of ids regardless of how many you have added
             List<String> attachmentIds = attachmentControllerApi.uploadAttachment(uploadAttachmentOptions);
 
+            // Send email with subject, body, to and attachement
             SendEmailOptions sendEmailOptions = new SendEmailOptions()
                     .attachments(attachmentIds)
                     .to(singletonList(user.getEmail()))
                     .subject("ALLTOLLPASS - Reports")
-                    .body(String.format("Hello %s, \n PFA Reports", user.getName()));
+                    .body(String.format("Hello %s, \n\n PFA Reports as requested. \n\n -- AllTollPass Team.", user.getName()));
             inboxControllerApi.sendEmail(inbox.getId(), sendEmailOptions);
         }catch (ApiException e){
             System.out.println("Error while sending email to " + user.getEmail() + " : " + e.getResponseBody());

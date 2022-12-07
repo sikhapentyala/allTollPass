@@ -24,7 +24,7 @@ public class AdminController {
     AdminService adminService;
 
     // Make a user inactive
-    @DeleteMapping("/user/{username}")
+    @PatchMapping("/user/{username}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteUser(@PathVariable String username) throws DatabaseException, UserNotFoundException {
         adminService.deleteUser(username);

@@ -12,9 +12,8 @@ public class AppConstants {
     public static final String GET_TOLL_RATE_BY_AGENCY = "/toll/rates";
     public static final String CREATE_TRANSACTION = "/toll/transaction";
     public static final String SEND_SMS = "https://api.twilio.com/2010-04-01/Accounts/%s/Messages.json";
-    //https://rapidapi.com/sms77io-sms77io-default/api/sms77io/
-    //
-    public static final String SEND_EMAIL = "/toll";
-    public static final String AUTHORIZE_VIA_OTP = "/toll";
-    //https://rapidapi.com/larroyouy70/api/phonenumbervalidatefree/
+
+    //public static final String SEND_EMAIL = "/toll";
+    //public static final String AUTHORIZE_VIA_OTP = "/toll";
+
 }

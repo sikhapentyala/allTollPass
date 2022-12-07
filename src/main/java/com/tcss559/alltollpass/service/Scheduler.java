@@ -42,8 +42,14 @@ public class Scheduler {
     //TODO: In production, this would be a service endpoint that would be called at a schedule
     // instead of this being a cron method itself. This is for POC only.
 
+    // TODO: A few assumptions are made here. When the schedular is run,
+    //  if there is no sufficient balance, we will make it failed
+    //  This in future should consider a time lapse or dfiiference betwwen time created and the status change.
+
+
+
     @Scheduled(cron = "0 * 0 ? * *")
-    public void tet(){
+    public void test(){
         System.out.println("Runnign cron");
     }
 
@@ -53,12 +59,12 @@ public class Scheduler {
             // Get all transactions that are inprocess
             List<TollTransaction> transactions = tollTransactionRepository.findByStatus(TransactionStatus.IN_PROCESS);
 
-            //Generate a map with <RFID, associated transactions in process> sort in created timestamp
+            //Generate a map with <RFID, associated transactions in process
             Map<String, List<TollTransaction>> transactionsMapForRFID = transactions.stream()
                     .collect(Collectors.groupingBy(TollTransaction::getRfid));
 
 
-            // for each rfid in map check the user balance, deduct balance in sequence and change the status to suceess
+            // for each rfid in map check the user balance, deduct balance in sequence of created timestamp
             for (Map.Entry<String, List<TollTransaction>> entry : transactionsMapForRFID.entrySet()) {
                 // Get user id
                 Optional<TravelerRfid> optionRfid = travelerRfidRepository.findByRfid(entry.getKey());
@@ -67,7 +73,7 @@ public class Scheduler {
                     continue;
                 }
 
-
+                // Get balance
                 Optional<TravelerAccount> travelerAccount = travelerAccountRepository.findById(optionRfid.get().getUserId());
                 if(travelerAccount.isEmpty()){
                     //TODO: check if "continue" will continue with other records
@@ -78,15 +84,17 @@ public class Scheduler {
                 double balanceToUpdate = travelerAccount.get().getBalance();
                 TransactionStatus statusToSet = TransactionStatus.FALLBACK;
 
+                // sort transactions by timestamp
                 List<TollTransaction> sortedList = entry.getValue().stream()
                         .sorted(Comparator.comparing(TollTransaction::getCreateTimestamp))
                         .collect(Collectors.toList());
 
                 for(TollTransaction t : sortedList)
                 {
-                    // we dnt have the amount in the toll transaction table. Need to update it. --> done
+                    // for each transaction
                     if(balanceToUpdate >= t.getAmount()) {
 
+                        // update the transaction table with appropriate status
                         try {
                             TravelerBalance newBalance = travelerService.debitTransaction(DebitRequest.builder()
                                     .rfid(t.getRfid())
