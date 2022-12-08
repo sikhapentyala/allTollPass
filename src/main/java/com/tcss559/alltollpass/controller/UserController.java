@@ -5,6 +5,10 @@ import com.tcss559.alltollpass.model.request.UserRequest;
 import com.tcss559.alltollpass.model.response.LoginResponse;
 import com.tcss559.alltollpass.model.response.UserResponse;
 import com.tcss559.alltollpass.service.UserService;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -30,6 +34,7 @@ public class UserController {
      * @param userRequest - JSON entity
      * @return
      */
+    @Operation(summary = "Creates a User during resgistration", description = "Returns the created user details")
     @PostMapping()
     @ResponseStatus(HttpStatus.OK)
     //@Tag(name = "createUser", description = "Registers a user in the AllTollPass,  creates a login and assigns a id ")
@@ -44,6 +49,7 @@ public class UserController {
      * @param loginRequest - JSON entity
      * @return
      */
+    @Operation(summary = "Validates the logging in user", description = "Returns the logged in user details")
     @PostMapping("/login")
     @ResponseStatus(HttpStatus.OK)
     //@Tag(name = "authenticateUser", description = "Validates if the logging user is valid  ")
