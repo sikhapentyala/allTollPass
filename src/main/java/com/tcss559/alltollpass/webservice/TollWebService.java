@@ -103,6 +103,8 @@ public class TollWebService {
                 .build();
         UriComponents uriComponents = UriComponentsBuilder.fromHttpUrl(appConfig.getServiceUrl()+ AppConstants.GET_VEHICLE_TYPE_BY_RFID).build();
         HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
         headers.add("rfid", rfid);
         HttpEntity<Void> entity = new HttpEntity<>(headers);
 
@@ -128,6 +130,8 @@ public class TollWebService {
         UriComponents uriComponents = UriComponentsBuilder.fromHttpUrl(appConfig.getServiceUrl()+ AppConstants.GET_TOLL_RATE_BY_AGENCY).build();
 
         HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
         headers.add("agency_id", String.valueOf(agencyId));
         HttpEntity<Void> entity = new HttpEntity<>(headers);
 
@@ -155,12 +159,17 @@ public class TollWebService {
                 .build();
         UriComponents uriComponents = UriComponentsBuilder.fromHttpUrl(appConfig.getServiceUrl()+ AppConstants.DEDUCT_AMOUNT).build();
 
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+
         HttpEntity<DebitRequest> entity = new HttpEntity<>(DebitRequest.builder()
                 .userId(rfidResponse.getUserId())
                 .tollLocation(tollRateDetail.getLocation())
                 .rfid(rfidResponse.getRfid())
                 .amount(tollRateDetail.getTollRate())
-                .build()
+                .build(),
+                headers
         );
 
         try {
@@ -181,9 +190,14 @@ public class TollWebService {
         RestTemplate template = new RestTemplateBuilder()
                 .messageConverters(new MappingJackson2HttpMessageConverter(new ObjectMapper().setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE)))
                 .build();
+
         UriComponents uriComponents = UriComponentsBuilder.fromHttpUrl(appConfig.getServiceUrl()+ AppConstants.CREATE_TRANSACTION).build();
 
-        HttpEntity<TollTransactionRequest> entity = new HttpEntity<>(request);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+
+        HttpEntity<TollTransactionRequest> entity = new HttpEntity<>(request, headers);
 
         try {
             ResponseEntity<TransactionStatus> response = template.exchange(uriComponents.toUri(), HttpMethod.PUT, entity, TransactionStatus.class);
@@ -201,33 +215,35 @@ public class TollWebService {
     }
 
     public static void main(String[] args) {
-
-        RestTemplate template = new RestTemplate();
-//                new RestTemplateBuilder()
-//                .messageConverters(new MappingJackson2HttpMessageConverter(new ObjectMapper().setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE)))
-//                .build();
-        UriComponents uriComponents = UriComponentsBuilder.fromHttpUrl("http://localhost:8080" + AppConstants.GET_TOLL_RATE_BY_AGENCY).build();
+        RestTemplate template = new RestTemplateBuilder()
+                .messageConverters(new MappingJackson2HttpMessageConverter(new ObjectMapper().setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE)))
+                .build();
+        UriComponents uriComponents = UriComponentsBuilder.fromHttpUrl("http://localhost:8080" + AppConstants.DEDUCT_AMOUNT).build();
 
         HttpHeaders headers = new HttpHeaders();
-        headers.add("agency_id", String.valueOf(2));
-        HttpEntity<Void> entity = new HttpEntity<>(headers);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+
+        HttpEntity<DebitRequest> entity = new HttpEntity<>(DebitRequest.builder()
+                .userId(1L)
+                .tollLocation("Florida")
+                .rfid("rfid3")
+                .amount(10)
+                .build(),
+                headers
+        );
 
         try {
-            ResponseEntity<String> response = template.exchange(uriComponents.toUri(), HttpMethod.GET, entity, String.class);
+            ResponseEntity<TravelerBalance> response = template.exchange(uriComponents.toUri(), HttpMethod.PUT, entity, TravelerBalance.class);
 
-            if (response.getStatusCode() == HttpStatus.OK) {
+            if (response.getStatusCode() == HttpStatus.CREATED) {
                 System.out.println(response.getBody());
-//                response.getBody().getRates().stream()
-//                        .filter(it -> it.getVehicleType() == VehicleType.LARGE)
-//                        .findAny().orElseThrow(() -> new TollNotFoundException("Rate does not exist for given vehicle: " + VehicleType.LARGE));
-
             } else {
-                throw new RuntimeException("Get rate by vehicle type service threw " + response.getStatusCode().getReasonPhrase());
+                throw new RuntimeException("Update balance service threw " + response.getStatusCode().getReasonPhrase());
             }
         }catch (Exception e){
             throw new RuntimeException(e);
         }
-
     }
 
 }
