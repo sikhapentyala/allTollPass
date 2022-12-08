@@ -1,5 +1,6 @@
 package com.tcss559.alltollpass.webservice;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tcss559.alltollpass.TollRequest;
 import com.tcss559.alltollpass.TollResponse;
 import com.tcss559.alltollpass.config.AppConfig;
@@ -14,7 +15,9 @@ import com.tcss559.alltollpass.model.response.toll.TollRateDetail;
 import com.tcss559.alltollpass.model.response.toll.TollRateResponse;
 import com.tcss559.alltollpass.model.response.traveler.RfidResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.*;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -177,17 +180,13 @@ public class TollWebService {
             if (response.getStatusCode() == HttpStatus.CREATED) {
                 return response.getBody();
             } else {
-                //throw new RuntimeException("Create transaction service threw " + response.getStatusCode().getReasonPhrase());
-                return TransactionStatus.FALLBACK;
+                throw new RuntimeException("Create transaction service threw " + response.getStatusCode().getReasonPhrase());
+//                return TransactionStatus.FALLBACK;
             }
         }catch (Exception e){
-            //throw new RuntimeException(e);
-            return TransactionStatus.FALLBACK;
+            throw new RuntimeException(e);
+//            return TransactionStatus.FALLBACK;
         }
     }
-
-
-
-
 
 }

@@ -17,7 +17,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/admin")
 @Tag(name = "admin-service", description = "AllTollPass Admin Service : A few services for the Administrator at AllTollPass")
-
 public class AdminController {
 
     @Autowired

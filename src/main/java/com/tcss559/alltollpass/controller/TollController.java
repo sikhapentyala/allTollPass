@@ -70,7 +70,7 @@ public class TollController {
      */
     @PatchMapping("/location")
     @ResponseStatus(HttpStatus.ACCEPTED)
-    public LocationResponse updateLocation(LocationRequest locationRequest){
+    public LocationResponse updateLocation(@RequestBody LocationRequest locationRequest){
         return tollService.updateLocation(locationRequest);
     }
 
@@ -81,7 +81,7 @@ public class TollController {
      */
     @PutMapping("/rates")
     @ResponseStatus(HttpStatus.CREATED)
-    public TollRateResponse upsertTollRates(TollRateRequest tollRateRequest){
+    public TollRateResponse upsertTollRates(@RequestBody TollRateRequest tollRateRequest){
         return tollService.upsertTollRates(tollRateRequest);
     }
 
@@ -103,7 +103,7 @@ public class TollController {
      */
     @DeleteMapping("/rates")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public TollRateResponse deleteTollRates(TollRateRequest tollRateRequest){
+    public TollRateResponse deleteTollRates(@RequestBody TollRateRequest tollRateRequest){
         return tollService.deleteTollRate(tollRateRequest);
     }
 
@@ -139,7 +139,7 @@ public class TollController {
      */
     @PutMapping("/transaction")
     @ResponseStatus(HttpStatus.CREATED)
-    public TransactionStatus createTransanction(TollTransactionRequest request){
+    public TransactionStatus createTransanction(@RequestBody TollTransactionRequest request){
         return tollService.createTollTransaction(request);
     }
 
