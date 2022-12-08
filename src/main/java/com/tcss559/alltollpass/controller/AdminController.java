@@ -5,6 +5,9 @@ import com.tcss559.alltollpass.exception.UserNotFoundException;
 import com.tcss559.alltollpass.model.response.UserResponseXML;
 import com.tcss559.alltollpass.model.response.toll.TransactionResponse;
 import com.tcss559.alltollpass.service.AdminService;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -32,6 +35,7 @@ public class AdminController {
     // Get transactions for a given status
     @GetMapping("/reports/{status}")
     @ResponseStatus(HttpStatus.OK)
+    @Parameter(in = ParameterIn.PATH, name ="status" ,schema = @Schema(type = "string", allowableValues = {"SUCCESS", "IN_PROCESS", "FALLBACK"}))
     public List<TransactionResponse> getReports(@PathVariable String status) throws DatabaseException {
         return adminService.getTransactionsByStatus(status);
     }
