@@ -2,6 +2,7 @@ package com.tcss559.alltollpass.controller;
 
 import com.tcss559.alltollpass.entity.toll.TransactionStatus;
 import com.tcss559.alltollpass.model.request.toll.LocationRequest;
+import com.tcss559.alltollpass.model.request.toll.TollRateDelete;
 import com.tcss559.alltollpass.model.request.toll.TollRateRequest;
 import com.tcss559.alltollpass.model.request.toll.TollTransactionRequest;
 import com.tcss559.alltollpass.model.response.toll.LocationResponse;
@@ -103,7 +104,7 @@ public class TollController {
      */
     @DeleteMapping("/rates")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public TollRateResponse deleteTollRates(@RequestBody TollRateRequest tollRateRequest){
+    public TollRateResponse deleteTollRates(@RequestBody TollRateDelete tollRateRequest){
         return tollService.deleteTollRate(tollRateRequest);
     }
 

@@ -76,12 +76,17 @@ public class ExternalService {
         // Response
         HttpEntity<MultiValueMap<String, String>> entity = new HttpEntity<>(map, headers);
 
-        ResponseEntity<String> response =
-                restTemplate.exchange(uriComponents.toUriString(),
-                        HttpMethod.POST,
-                        entity,
-                        String.class);
-        System.out.println(response.getBody());
+        try {
+            ResponseEntity<String> response =
+                    restTemplate.exchange(uriComponents.toUriString(),
+                            HttpMethod.POST,
+                            entity,
+                            String.class);
+            System.out.println(response.getBody());
+        }catch (Exception e){
+            System.out.println("Error while sending the message: " + e.getMessage());
+        }
+
     }
 
     // Method to send Email using MailSlurp
@@ -150,41 +155,87 @@ public class ExternalService {
     }
 
     //TODO: Remove this method after all testing is done with external services
-    public static void main(String[] args) throws IOException {
-
-        TransactionDetail t1 = TransactionDetail.builder()
-                .tollLocation("location1")
-                .createdTimestamp(LocalDateTime.now().format(DateTimeFormatter.ofPattern("EEEE, MMM dd, yyyy HH:mm:ss a\t")))
-                .amount(10)
-                .type(TransactionType.DEBIT)
-                .rfid("sasir")
-                .build();
-
-        TransactionDetail t2 = TransactionDetail.builder()
-                .tollLocation("location2")
-                .createdTimestamp(LocalDateTime.now().format(DateTimeFormatter.ofPattern("EEEE, MMM dd, yyyy HH:mm:ss a\t")))
-                .amount(20)
-                .type(TransactionType.CREDIT)
-                .rfid("sikha")
-                .build();
-
-        List<TransactionDetail> list = new ArrayList<>();
-        list.add(t1);
-        list.add(t2);
-
-//        User user = User.builder()
-//                .email("sikha@uw.edu")
-//                .name("Sikha Pentyala")
+//    public static void main(String[] args) throws IOException {
+//
+//        TransactionDetail t1 = TransactionDetail.builder()
+//                .tollLocation("location1")
+//                .createdTimestamp(LocalDateTime.now().format(DateTimeFormatter.ofPattern("EEEE, MMM dd, yyyy HH:mm:ss a\t")))
+//                .amount(10)
+//                .type(TransactionType.DEBIT)
+//                .rfid("sasir")
 //                .build();
+//
+//        TransactionDetail t2 = TransactionDetail.builder()
+//                .tollLocation("location2")
+//                .createdTimestamp(LocalDateTime.now().format(DateTimeFormatter.ofPattern("EEEE, MMM dd, yyyy HH:mm:ss a\t")))
+//                .amount(20)
+//                .type(TransactionType.CREDIT)
+//                .rfid("sikha")
+//                .build();
+//
+//        List<TransactionDetail> list = new ArrayList<>();
+//        list.add(t1);
+//        list.add(t2);
+//
+////        User user = User.builder()
+////                .email("sikha@uw.edu")
+////                .name("Sikha Pentyala")
+////                .build();
+//
+////        sendEmail(list, user, TransactionDetail.class);
+//
+//        CsvMapper mapper = new CsvMapper();
+//        CsvSchema schema = mapper.schemaFor(TransactionDetail.class).withHeader();
+//        schema = schema.withColumnSeparator(',');
+//        ObjectWriter myObjectWriter = mapper.writer(schema);
+//        myObjectWriter.writeValue(new File("/Users/z004tgz/Desktop/sample.csv"), list);
+////        byte[] bytes = myObjectWriter.writeValueAsBytes(list);
+//    }
 
-//        sendEmail(list, user, TransactionDetail.class);
+    public static void main(String[] args) {
 
-        CsvMapper mapper = new CsvMapper();
-        CsvSchema schema = mapper.schemaFor(TransactionDetail.class).withHeader();
-        schema = schema.withColumnSeparator(',');
-        ObjectWriter myObjectWriter = mapper.writer(schema);
-        myObjectWriter.writeValue(new File("/Users/z004tgz/Desktop/sample.csv"), list);
-//        byte[] bytes = myObjectWriter.writeValueAsBytes(list);
+        SMSRequest smsRequest = SMSRequest.builder()
+                .amount(10)
+                .number("+12067244643")
+                .currentBalance(30)
+                .transactionType(TransactionType.CREDIT)
+                .build();
+
+
+        RestTemplate restTemplate = new RestTemplate();
+        UriComponents uriComponents = UriComponentsBuilder.fromHttpUrl(String.format(AppConstants.SEND_SMS, "AC3638d6539aee4e46ca55fc8517a465f1")).build();
+
+        // Set headers
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBasicAuth("AC3638d6539aee4e46ca55fc8517a465f1", "575332d87b5cee6a06e2d8dbe57ae86c");
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
+        // Create map required for Twilio
+        MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+        String body = "Your account has been %sED with amount %s. Your current balance is %s. ";
+        String requestBody = String.format(body, smsRequest.getTransactionType().toString(), smsRequest.getAmount(), smsRequest.getCurrentBalance());;
+        if(smsRequest.getCurrentBalance() <= 0){
+            requestBody = requestBody + "Please recharge your account immediately.";
+        }
+        map.add("Body",requestBody);
+        map.add("To",smsRequest.getNumber());
+        map.add("MessagingServiceSid", "MG2ee822ba186420c69e4511a186cad674");
+//        map.add("From", "+19034203349");
+
+        // Response
+        HttpEntity<MultiValueMap<String, String>> entity = new HttpEntity<>(map, headers);
+
+        try {
+            ResponseEntity<String> response =
+                    restTemplate.exchange(uriComponents.toUriString(),
+                            HttpMethod.POST,
+                            entity,
+                            String.class);
+            System.out.println(response.getBody());
+        }catch (Exception e){
+            System.out.println("Error while sending the message: " + e.getMessage());
+        }
+
     }
 
 

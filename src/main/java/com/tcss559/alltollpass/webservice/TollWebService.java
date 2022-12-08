@@ -1,6 +1,7 @@
 package com.tcss559.alltollpass.webservice;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.tcss559.alltollpass.TollRequest;
 import com.tcss559.alltollpass.TollResponse;
 import com.tcss559.alltollpass.config.AppConfig;
@@ -25,6 +26,8 @@ import org.springframework.ws.server.endpoint.annotation.Endpoint;
 import org.springframework.ws.server.endpoint.annotation.PayloadRoot;
 import org.springframework.ws.server.endpoint.annotation.RequestPayload;
 import org.springframework.ws.server.endpoint.annotation.ResponsePayload;
+
+import java.util.Collections;
 
 /**
  * @author sikha
@@ -95,7 +98,9 @@ public class TollWebService {
 
     // This method is used for service composition as service 1
     public RfidResponse callServiceToGetVehicleType(String rfid){
-        RestTemplate template = new RestTemplate();
+        RestTemplate template = new RestTemplateBuilder()
+                .messageConverters(new MappingJackson2HttpMessageConverter(new ObjectMapper().setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE)))
+                .build();
         UriComponents uriComponents = UriComponentsBuilder.fromHttpUrl(appConfig.getServiceUrl()+ AppConstants.GET_VEHICLE_TYPE_BY_RFID).build();
         HttpHeaders headers = new HttpHeaders();
         headers.add("rfid", rfid);
@@ -117,7 +122,9 @@ public class TollWebService {
 
     // This method is used for service composition as service 2
     public TollRateDetail callServiceToGetTollRateByVehicleType(Long agencyId, VehicleType vehicleType){
-        RestTemplate template = new RestTemplate();
+        RestTemplate template = new RestTemplateBuilder()
+                .messageConverters(new MappingJackson2HttpMessageConverter(new ObjectMapper().setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE)))
+                .build();
         UriComponents uriComponents = UriComponentsBuilder.fromHttpUrl(appConfig.getServiceUrl()+ AppConstants.GET_TOLL_RATE_BY_AGENCY).build();
 
         HttpHeaders headers = new HttpHeaders();
@@ -143,7 +150,9 @@ public class TollWebService {
 
     // This method is used for service composition as service 3
     public TravelerBalance callServiceToUpdateUserBalance(RfidResponse rfidResponse, TollRateDetail tollRateDetail){
-        RestTemplate template = new RestTemplate();
+        RestTemplate template = new RestTemplateBuilder()
+                .messageConverters(new MappingJackson2HttpMessageConverter(new ObjectMapper().setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE)))
+                .build();
         UriComponents uriComponents = UriComponentsBuilder.fromHttpUrl(appConfig.getServiceUrl()+ AppConstants.DEDUCT_AMOUNT).build();
 
         HttpEntity<DebitRequest> entity = new HttpEntity<>(DebitRequest.builder()
@@ -169,7 +178,9 @@ public class TollWebService {
 
     //TODO : Check
     public TransactionStatus createTollTransaction(TollTransactionRequest request){
-        RestTemplate template = new RestTemplate();
+        RestTemplate template = new RestTemplateBuilder()
+                .messageConverters(new MappingJackson2HttpMessageConverter(new ObjectMapper().setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE)))
+                .build();
         UriComponents uriComponents = UriComponentsBuilder.fromHttpUrl(appConfig.getServiceUrl()+ AppConstants.CREATE_TRANSACTION).build();
 
         HttpEntity<TollTransactionRequest> entity = new HttpEntity<>(request);
@@ -187,6 +198,36 @@ public class TollWebService {
             throw new RuntimeException(e);
 //            return TransactionStatus.FALLBACK;
         }
+    }
+
+    public static void main(String[] args) {
+
+        RestTemplate template = new RestTemplate();
+//                new RestTemplateBuilder()
+//                .messageConverters(new MappingJackson2HttpMessageConverter(new ObjectMapper().setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE)))
+//                .build();
+        UriComponents uriComponents = UriComponentsBuilder.fromHttpUrl("http://localhost:8080" + AppConstants.GET_TOLL_RATE_BY_AGENCY).build();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("agency_id", String.valueOf(2));
+        HttpEntity<Void> entity = new HttpEntity<>(headers);
+
+        try {
+            ResponseEntity<String> response = template.exchange(uriComponents.toUri(), HttpMethod.GET, entity, String.class);
+
+            if (response.getStatusCode() == HttpStatus.OK) {
+                System.out.println(response.getBody());
+//                response.getBody().getRates().stream()
+//                        .filter(it -> it.getVehicleType() == VehicleType.LARGE)
+//                        .findAny().orElseThrow(() -> new TollNotFoundException("Rate does not exist for given vehicle: " + VehicleType.LARGE));
+
+            } else {
+                throw new RuntimeException("Get rate by vehicle type service threw " + response.getStatusCode().getReasonPhrase());
+            }
+        }catch (Exception e){
+            throw new RuntimeException(e);
+        }
+
     }
 
 }

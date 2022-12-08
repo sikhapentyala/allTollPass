@@ -10,6 +10,7 @@ import com.tcss559.alltollpass.exception.DatabaseException;
 import com.tcss559.alltollpass.exception.TollNotFoundException;
 import com.tcss559.alltollpass.exception.UserNotFoundException;
 import com.tcss559.alltollpass.model.request.toll.LocationRequest;
+import com.tcss559.alltollpass.model.request.toll.TollRateDelete;
 import com.tcss559.alltollpass.model.request.toll.TollRateRequest;
 import com.tcss559.alltollpass.model.request.toll.TollTransactionRequest;
 import com.tcss559.alltollpass.model.response.toll.LocationResponse;
@@ -23,6 +24,7 @@ import com.tcss559.alltollpass.repository.toll.TollTransactionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -144,7 +146,8 @@ public class TollService {
     }
 
     // Delete toll rate for gievn agency and vehicle type
-    public TollRateResponse deleteTollRate(TollRateRequest tollRateRequest) throws TollNotFoundException, DatabaseException {
+    @Transactional
+    public TollRateResponse deleteTollRate(TollRateDelete tollRateRequest) throws TollNotFoundException, DatabaseException {
         User user = userRepository.findByIdAndIsActiveTrue(tollRateRequest.getAgencyId()).orElseThrow(() -> new UserNotFoundException("The User/Agency is deactivated"));
         Agency agency = agencyRepository.findById(tollRateRequest.getAgencyId()).orElseThrow(() -> new TollNotFoundException("Toll not found"));
         tollRateRepository.deleteByAgencyIdAndVehicleType(agency.getId(), tollRateRequest.getVehicleType());

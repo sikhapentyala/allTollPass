@@ -1,5 +1,6 @@
 package com.tcss559.alltollpass.model.response.traveler;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;
 import lombok.Data;
 
@@ -9,7 +10,7 @@ import java.util.List;
 @Builder
 public class TravelerResponse {
     private Long userId;
-    private double balance;
+    private Double balance;
     private List<TravelerRfidResponse> rfids;
 
 }

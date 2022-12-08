@@ -152,7 +152,7 @@ public class TravelerService {
 
     // fetch all RFIDs of a user
     public TravelerResponse getAllRfid(Long userId) throws DatabaseException {
-        List<TravelerRfid> list = travelerRfidRepository.findByUserId(userId);
+        List<TravelerRfid> list = travelerRfidRepository.findByUserIdAndIsActiveTrue(userId);
         return TravelerResponse.builder()
                 .rfids(
                     list.stream()
